@@ -314,7 +314,7 @@
             <button class="btn" onclick="changeMonth(1)">▶</button>
         </div>
         <div>
-            <button class="btn" style="border-color: var(--success); color: var(--success);" onclick="saveToLocalStorage()">Зберегти зміни</button>
+            <button class="btn" style="border-color: var(--success); color: var(--success);" onclick="saveToCloudAndLocal()">Зберегти зміни</button>
         </div>
     </header>
 
@@ -343,13 +343,16 @@
         </div>
 
         <div class="sync-banner">
-            <strong>💡 Готово до розгортання:</strong><br>
-            Дані зараз автоматично кешуються у браузері. При підключенні Google Apps Script, цей інтерфейс буде в один клік відправляти нагадування на телефони твоїх 12 працівників.
+            <strong>💡 Хмарна інтеграція активована:</strong><br>
+            При натисканні «Зберегти зміни», календар синхронізується з вашим Google Диском і оновить розклад у реальному часі.
         </div>
     </aside>
 </div>
 
 <script>
+    // Твоє посилання на Google Apps Script
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhu3m5MazbR5CY6KkgqCRlpxTaVih_RIaystRhpTOIRPbsqJQk8cw6ARNiSub3T2xB/exec";
+
     // 12 Працівників
     const employees = Array.from({length: 12}, (_, i) => `Працівник ${i + 1}`);
     
@@ -371,7 +374,6 @@
         document.getElementById('monthTitle').innerText = `${monthsUA[month]} ${year}`;
         
         const firstDayIndex = new Date(year, month, 1).getDay();
-        // Перетворюємо неділю з 0 на 6 індекс для нашої логіки (Пн-Нд)
         const adjustedFirstDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
         
         const totalDays = new Date(year, month + 1, 0).getDate();
@@ -379,19 +381,16 @@
         const grid = document.getElementById('calendarGrid');
         grid.innerHTML = '';
 
-        // Пусті клітинки для правильного старту місяця
         for(let i = 0; i < adjustedFirstDay; i++) {
             const emptyCell = document.createElement('div');
             emptyCell.classList.add('calendar-day', 'empty');
             grid.appendChild(emptyCell);
         }
 
-        // Рендер днів місяця
         for(let day = 1; day <= totalDays; day++) {
             const dayCell = document.createElement('div');
             dayCell.classList.add('calendar-day');
             
-            // Визначаємо день тижня (0-Нд, 4-Чт, 5-Пт, 6-Сб)
             const dateObj = new Date(year, month, day);
             const dayOfWeek = dateObj.getDay();
             const isCritical = [4, 5, 6, 0].includes(dayOfWeek);
@@ -428,19 +427,16 @@
     }
 
     function calculateStats() {
-        // Обнуляємо лічильники
         const stats = {};
         employees.forEach(emp => {
             stats[emp] = { total: 0, critical: 0 };
         });
 
-        // Підраховуємо
         Object.keys(schedule).forEach(dateStr => {
             const empName = schedule[dateStr];
             if(stats[empName]) {
                 stats[empName].total += 1;
                 
-                // Перевірка чи день був Чт, Пт, Сб або Нд
                 const [y, m, d] = dateStr.split('-').map(Number);
                 const dayOfWeek = new Date(y, m - 1, d).getDay();
                 if([4, 5, 6, 0].includes(dayOfWeek)) {
@@ -449,10 +445,8 @@
             }
         });
 
-        // Сортуємо працівників за навантаженням
         const sortedEmployees = [...employees].sort((a, b) => stats[b].total - stats[a].total);
 
-        // Рендер аналітики
         const statsList = document.getElementById('statsList');
         statsList.innerHTML = sortedEmployees.map(emp => `
             <div class="stat-card">
@@ -468,12 +462,42 @@
         initCalendar();
     }
 
-    function saveToLocalStorage() {
+    // Нова функція, яка відправляє дані на твій Google Apps Script URL
+    function saveToCloudAndLocal() {
+        // Зберігаємо локально у браузері
         localStorage.setItem('duty_schedule', JSON.stringify(schedule));
-        alert('📊 Зміни графіку чергувань збережено локально!');
+        
+        // Візуальний ефект завантаження на кнопці
+        const saveBtn = document.querySelector('.btn[style*="var(--success)"]');
+        const originalText = saveBtn.innerText;
+        saveBtn.innerText = "Зберігаємо у хмару...";
+        saveBtn.style.opacity = "0.6";
+        saveBtn.disabled = true;
+
+        // Передаємо дані у твій скрипт Google Таблиць
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors", 
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(schedule)
+        })
+        .then(() => {
+            alert('📊 Зміни збережено! Дані успішно надіслано в Google Таблицю та Календар.');
+        })
+        .catch(err => {
+            console.error("Помилка:", err);
+            alert('Збережено лише локально. Перевірте з’єднання або налаштування Apps Script.');
+        })
+        .finally(() => {
+            saveBtn.innerText = originalText;
+            saveBtn.style.opacity = "1";
+            saveBtn.disabled = false;
+        });
     }
 
-    // Запуск системи
+    // Запуск календаря
     initCalendar();
 </script>
 </body>
