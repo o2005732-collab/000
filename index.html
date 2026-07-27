@@ -1,1 +1,480 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DutyControl Pro — Система Чергувань</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-primary: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.15);
+            --critical-day: #f43f5e;
+            --critical-glow: rgba(244, 63, 94, 0.25);
+            --success: #10b981;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            border-radius: 24px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-area h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-area span {
+            color: var(--accent-primary);
+        }
+
+        .month-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.6rem 1.2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--accent-primary);
+            box-shadow: 0 0 15px var(--accent-glow);
+            border-color: transparent;
+        }
+
+        .current-month-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        /* КАЛЕНДАР */
+        .main-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .weekdays-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .weekday-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+        }
+
+        .calendar-day {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            min-height: 110px;
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-day:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .calendar-day.empty {
+            background: transparent;
+            border: none;
+            pointer-events: none;
+        }
+
+        .day-number {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        /* Підсвічування Чт, Пт, Сб, Нд */
+        .calendar-day.critical-day {
+            background: rgba(244, 63, 94, 0.03);
+            border-color: rgba(244, 63, 94, 0.2);
+        }
+        
+        .calendar-day.critical-day .day-number {
+            color: var(--critical-day);
+            text-shadow: 0 0 10px var(--critical-glow);
+        }
+
+        .employee-select {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-top: auto;
+        }
+
+        .employee-select:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .employee-select option {
+            background: #1e293b;
+            color: var(--text-main);
+        }
+
+        /* СИДБАР / АНАЛІТИКА */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .stats-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-panel h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        /* Кастомізація скроллбару */
+        .stats-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .stats-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 1rem;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-name {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: center;
+            min-width: 45px;
+        }
+
+        .badge-total {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .badge-critical {
+            background: rgba(244, 63, 94, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        .sync-banner {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+            padding: 1rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="logo-area">
+            <h1>DutyControl <span>Pro</span></h1>
+        </div>
+        <div class="month-selector">
+            <button class="btn" onclick="changeMonth(-1)">◀</button>
+            <div class="current-month-title" id="monthTitle">Липень 2026</div>
+            <button class="btn" onclick="changeMonth(1)">▶</button>
+        </div>
+        <div>
+            <button class="btn" style="border-color: var(--success); color: var(--success);" onclick="saveToLocalStorage()">Зберегти зміни</button>
+        </div>
+    </header>
+
+    <main class="main-panel">
+        <div class="weekdays-grid">
+            <div class="weekday-label">Пн</div>
+            <div class="weekday-label">Вт</div>
+            <div class="weekday-label">Ср</div>
+            <div class="weekday-label">Чт</div>
+            <div class="weekday-label">Пт</div>
+            <div class="weekday-label">Сб</div>
+            <div class="weekday-label">Нд</div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+    </main>
+
+    <aside class="sidebar">
+        <div class="stats-panel">
+            <h2>Аналітика нарядів</h2>
+            <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; padding: 0 1rem 0.5rem 1rem; color: var(--text-muted); font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">
+                <span>Співробітник</span>
+                <span>Всього</span>
+                <span>Чт-Нд</span>
+            </div>
+            <div class="stats-list" id="statsList"></div>
+        </div>
+
+        <div class="sync-banner">
+            <strong>💡 Готово до розгортання:</strong><br>
+            Дані зараз автоматично кешуються у браузері. При підключенні Google Apps Script, цей інтерфейс буде в один клік відправляти нагадування на телефони твоїх 12 працівників.
+        </div>
+    </aside>
+</div>
+
+<script>
+    // 12 Працівників
+    const employees = Array.from({length: 12}, (_, i) => `Працівник ${i + 1}`);
+    
+    // Поточна дата для календаря
+    let currentDate = new Date();
+    
+    // Структура для збереження чергувань { "YYYY-MM-DD": "Ім'я працівника" }
+    let schedule = JSON.parse(localStorage.getItem('duty_schedule')) || {};
+
+    const monthsUA = [
+        "Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
+        "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"
+    ];
+
+    function initCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        document.getElementById('monthTitle').innerText = `${monthsUA[month]} ${year}`;
+        
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        // Перетворюємо неділю з 0 на 6 індекс для нашої логіки (Пн-Нд)
+        const adjustedFirstDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+        
+        const totalDays = new Date(year, month + 1, 0).getDate();
+        
+        const grid = document.getElementById('calendarGrid');
+        grid.innerHTML = '';
+
+        // Пусті клітинки для правильного старту місяця
+        for(let i = 0; i < adjustedFirstDay; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.classList.add('calendar-day', 'empty');
+            grid.appendChild(emptyCell);
+        }
+
+        // Рендер днів місяця
+        for(let day = 1; day <= totalDays; day++) {
+            const dayCell = document.createElement('div');
+            dayCell.classList.add('calendar-day');
+            
+            // Визначаємо день тижня (0-Нд, 4-Чт, 5-Пт, 6-Сб)
+            const dateObj = new Date(year, month, day);
+            const dayOfWeek = dateObj.getDay();
+            const isCritical = [4, 5, 6, 0].includes(dayOfWeek);
+            
+            if(isCritical) {
+                dayCell.classList.add('critical-day');
+            }
+
+            const dateString = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            
+            dayCell.innerHTML = `
+                <div class="day-number">${day}</div>
+                <select class="employee-select" data-date="${dateString}" onchange="assignEmployee(this)">
+                    <option value="">— Вільний день —</option>
+                    ${employees.map(emp => `<option value="${emp}" ${schedule[dateString] === emp ? 'selected' : ''}>${emp}</option>`).join('')}
+                </select>
+            `;
+            
+            grid.appendChild(dayCell);
+        }
+
+        calculateStats();
+    }
+
+    function assignEmployee(selectElement) {
+        const date = selectElement.getAttribute('data-date');
+        const val = selectElement.value;
+        if(val) {
+            schedule[date] = val;
+        } else {
+            delete schedule[date];
+        }
+        calculateStats();
+    }
+
+    function calculateStats() {
+        // Обнуляємо лічильники
+        const stats = {};
+        employees.forEach(emp => {
+            stats[emp] = { total: 0, critical: 0 };
+        });
+
+        // Підраховуємо
+        Object.keys(schedule).forEach(dateStr => {
+            const empName = schedule[dateStr];
+            if(stats[empName]) {
+                stats[empName].total += 1;
+                
+                // Перевірка чи день був Чт, Пт, Сб або Нд
+                const [y, m, d] = dateStr.split('-').map(Number);
+                const dayOfWeek = new Date(y, m - 1, d).getDay();
+                if([4, 5, 6, 0].includes(dayOfWeek)) {
+                    stats[empName].critical += 1;
+                }
+            }
+        });
+
+        // Сортуємо працівників за навантаженням
+        const sortedEmployees = [...employees].sort((a, b) => stats[b].total - stats[a].total);
+
+        // Рендер аналітики
+        const statsList = document.getElementById('statsList');
+        statsList.innerHTML = sortedEmployees.map(emp => `
+            <div class="stat-card">
+                <div class="stat-name">${emp}</div>
+                <div class="badge badge-total">${stats[emp].total}</div>
+                <div class="badge badge-critical">${stats[emp].critical}</div>
+            </div>
+        `).join('');
+    }
+
+    function changeMonth(direction) {
+        currentDate.setMonth(currentDate.getMonth() + direction);
+        initCalendar();
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem('duty_schedule', JSON.stringify(schedule));
+        alert('📊 Зміни графіку чергувань збережено локально!');
+    }
+
+    // Запуск системи
+    initCalendar();
+</script>
+</body>
+</html>
