@@ -3,47 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DutyControl Pro — Мультикалендар</title>
+    <title>DutyControl Pro — Мульти-Панель</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            --panel-bg: rgba(255, 255, 255, 0.85);
+            --panel-bg: rgba(255, 255, 255, 0.88);
             --border-color: rgba(15, 23, 42, 0.08);
             --text-main: #0f172a;
             --text-muted: #64748b;
             --accent-primary: #4f46e5;
-            --accent-glow: rgba(79, 70, 229, 0.15);
             --critical-day: #ef4444;
             --success: #10b981;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-            background: var(--bg-gradient);
-            background-attachment: fixed;
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 2rem;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg-gradient); background-attachment: fixed; color: var(--text-main); min-height: 100vh; padding: 1.5rem; }
 
         .container {
             max-width: 1850px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 1fr 500px;
-            gap: 2rem;
+            grid-template-columns: 1fr 480px;
+            gap: 1.5rem;
         }
 
-        @media (max-width: 1400px) {
-            .container { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 1400px) { .container { grid-template-columns: 1fr; } }
 
         header {
             grid-column: 1 / -1;
@@ -53,60 +38,27 @@
             background: var(--panel-bg);
             backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
-            padding: 1.2rem 2rem;
+            padding: 1rem 2rem;
             border-radius: 20px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         }
 
-        .logo-area h1 { font-size: 1.4rem; font-weight: 700; color: #1e293b; }
+        .logo-area h1 { font-size: 1.3rem; font-weight: 700; color: #1e293b; }
         .logo-area span { color: var(--accent-primary); }
-
         .month-selector { display: flex; align-items: center; gap: 1rem; }
+        .current-month-title { font-size: 1.1rem; font-weight: 700; min-width: 160px; text-align: center; }
+
         .btn {
             background: #ffffff;
             border: 1px solid rgba(15, 23, 42, 0.12);
             color: #1e293b;
-            padding: 0.6rem 1.2rem;
+            padding: 0.5rem 1.2rem;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.9rem;
             transition: all 0.2s ease;
         }
         .btn:hover { border-color: var(--accent-primary); background: rgba(79, 70, 229, 0.04); }
-        .current-month-title { font-size: 1.15rem; font-weight: 700; min-width: 160px; text-align: center; color: #1e293b; }
-
-        /* ПАНЕЛЬ ШВИДКОГО ПЕНЗЛИКА */
-        .quick-fill-panel {
-            grid-column: 1 / -1;
-            background: var(--panel-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 1rem 1.5rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .quick-fill-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
-
-        .brush-badge {
-            background: #fff;
-            border: 1px solid rgba(15, 23, 42, 0.1);
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .brush-badge.active { border-color: #000 !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); }
-        .color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 
         /* КАЛЕНДАР */
         .main-panel {
@@ -118,116 +70,55 @@
             box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.05);
         }
 
-        .weekdays-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            text-align: center;
-            margin-bottom: 0.75rem;
-        }
-        .weekday-label { color: var(--text-muted); font-size: 0.8rem; font-weight: 700; padding: 0.5rem; text-transform: uppercase; }
-
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+        .weekdays-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; text-align: center; margin-bottom: 0.75rem; }
+        .weekday-label { color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
 
         .calendar-day {
             background: #ffffff;
             border: 1px solid rgba(15, 23, 42, 0.06);
             border-radius: 16px;
-            min-height: 220px;
-            padding: 0.65rem;
+            min-height: 260px;
+            padding: 0.6rem;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
         }
         .calendar-day.empty { background: transparent; border: none; pointer-events: none; }
 
-        .day-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
+        .day-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px; }
         .day-number { font-size: 1.05rem; font-weight: 700; color: #475569; }
-
         .calendar-day.critical-day { background: #fffafb; }
         .calendar-day.critical-day .day-number { color: var(--critical-day); }
 
-        .employee-select, .type-select {
-            width: 100%;
-            background: #ffffff;
-            border: 1px solid rgba(15, 23, 42, 0.12);
-            color: var(--text-main);
-            padding: 0.35rem;
-            border-radius: 6px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            outline: none;
-        }
+        /* БЛОКИ СПИСКІВ ВСЕРЕДИНІ ДНЯ */
+        .day-section { display: flex; flex-direction: column; gap: 4px; }
+        .section-title { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.3px; }
 
-        /* ЗОНА ВІДСУТНОСТІ (МУЛЬТИ-СПИСОК) */
-        .absence-section {
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding-top: 6px;
-            border-top: 1px dashed #e2e8f0;
-        }
-
-        .absence-title {
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            letter-spacing: 0.3px;
-        }
-
-        .absence-row {
+        .item-row {
             display: flex;
             align-items: center;
-            gap: 4px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 2px 4px;
+            justify-content: space-between;
+            padding: 2px 6px;
             border-radius: 6px;
             font-size: 0.72rem;
+            font-weight: 600;
+            border: 1px solid rgba(0,0,0,0.04);
         }
 
-        .absence-badge {
-            flex: 1;
-            font-weight: 600;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            padding: 2px 4px;
-            border-radius: 4px;
-        }
+        /* Стилі для різних нарядів та відпусток */
+        .row-duty { background: #eef2ff; color: #4f46e5; border-left: 3px solid #6366f1; }
+        .row-work { background: #ecfdf5; color: #065f46; border-left: 3px solid #10b981; }
+        .row-vacation { background: #f0f9ff; color: #0369a1; border-left: 3px solid #38bdf8; }
+        .row-trip { background: #faf5ff; color: #6b21a8; border-left: 3px solid #c084fc; }
+        .row-sick { background: #fff7ed; color: #9a3412; border-left: 3px solid #fb923c; }
+
+        .btn-del { background: transparent; border: none; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 0.85rem; padding: 0 2px; }
         
-        /* Кольори бейджів відсутності */
-        .ab-vacation { background: #e0f2fe; color: #0369a1; border-left: 3px solid #38bdf8; }
-        .ab-trip { background: #f3e8ff; color: #6b21a8; border-left: 3px solid #c084fc; }
-        .ab-sick { background: #ffedd5; color: #9a3412; border-left: 3px solid #fb923c; }
-
-        .btn-delete-absence {
-            background: transparent;
-            border: none;
-            color: #ef4444;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.8rem;
-            padding: 0 4px;
-        }
-
-        .btn-add-absence {
-            background: #f1f5f9;
-            border: 1px dashed #cbd5e1;
-            color: #475569;
-            font-size: 0.72rem;
-            font-weight: 600;
-            padding: 3px;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: center;
-            width: 100%;
-            transition: all 0.2s;
-        }
-        .btn-add-absence:hover { background: #e2e8f0; color: #000; }
+        /* Кнопки вибору */
+        .add-box { display: flex; gap: 2px; margin-top: 2px; }
+        .quick-select { flex: 1; font-size: 0.72rem; padding: 2px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; background: #fff; font-weight: 500; }
 
         /* АНАЛІТИКА */
         .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
@@ -252,14 +143,8 @@
             grid-template-columns: 140px repeat(4, 1fr);
             gap: 0.5rem;
             align-items: center;
-            position: relative;
         }
-        .load-indicator { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); width: 4px; height: 18px; border-radius: 4px; }
-        .load-low { background: #10b981; }
-        .load-medium { background: #f59e0b; }
-        .load-high { background: #ef4444; }
-
-        .stat-name { font-weight: 600; font-size: 0.82rem; color: #334155; display: flex; align-items: center; gap: 6px; }
+        .stat-name { font-weight: 600; font-size: 0.82rem; color: #334155; }
         .badge { padding: 0.25rem 0.1rem; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-align: center; }
         
         .badge-total { background: rgba(79, 70, 229, 0.06); color: #4f46e5; border: 1px solid rgba(79, 70, 229, 0.15); }
@@ -273,7 +158,7 @@
 <div class="container">
     <header>
         <div class="logo-area">
-            <h1>DutyControl <span>MultiPro</span></h1>
+            <h1>DutyControl <span>Pro v4</span></h1>
         </div>
         <div class="month-selector">
             <button class="btn" onclick="changeMonth(-1)">◀</button>
@@ -282,13 +167,6 @@
         </div>
         <button class="btn" style="border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.04);" onclick="saveToCloudAndLocal()">Зберегти зміни</button>
     </header>
-
-    <!-- ПАНЕЛЬ ШВИДКОГО ПЕНЗЛИКА -->
-    <div class="quick-fill-panel">
-        <span class="quick-fill-title">🖌️ Наряди (Пензлик):</span>
-        <button class="brush-badge" id="btnBrushNone" onclick="selectBrush('')" style="font-weight: bold; border-color: #ef4444; color: #ef4444;">Вимкнути пензлик</button>
-        <div id="brushContainer" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
-    </div>
 
     <main class="main-panel">
         <div class="weekdays-grid">
@@ -307,7 +185,7 @@
         <div class="stats-panel">
             <h2>Аналітика нарядів та статусів</h2>
             <div style="display: grid; grid-template-columns: 140px repeat(4, 1fr); gap: 0.5rem; padding-bottom: 0.5rem; color: var(--text-muted); font-size: 0.65rem; font-weight: bold; text-align: center; text-transform: uppercase;">
-                <span style="text-align: left; padding-left: 6px;">Працівник</span>
+                <span style="text-align: left;">Працівник</span>
                 <span>Черг.</span>
                 <span>Чт-Нд</span>
                 <span>Відпр.</span>
@@ -332,53 +210,18 @@
         "Романов В.М.", "Магера А.В.", "Мотузенко М.С.", "Бондар О.С.", "Кулик Д.І."
     ];
     const management = [
-        "Приймак А.І.", "Шахляров Т.Е.", "Хворостян В.В."
+        "Приймак А.І.", "Шахляров Т.E.", "Хворостян В.В."
     ];
     const allEmployees = [...staff, ...management];
 
-    const employeeColors = {
-        "Дем'яненко Т.І.": { bg: "#e0f2fe", border: "#bae6fd", dot: "#38bdf8" },
-        "Цибко В.І.":      { bg: "#dcfce7", border: "#bbf7d0", dot: "#4ade80" },
-        "Ївженко В.О.":    { bg: "#fef9c3", border: "#fef08a", dot: "#facc15" },
-        "Щербатюк М.В.":   { bg: "#fee2e2", border: "#fecaca", dot: "#f87171" },
-        "Магера В.В.":     { bg: "#f3e8ff", border: "#e9d5ff", dot: "#c084fc" },
-        "Муха М.О.":       { bg: "#ffedd5", border: "#fed7aa", dot: "#fb923c" },
-        "Дробіт О.Ю.":     { bg: "#fae8ff", border: "#f5d0fe", dot: "#e879f9" },
-        "Онищенко Р.В.":   { bg: "#e0e7ff", border: "#c7d2fe", dot: "#818cf8" },
-        "Романов В.М.":    { bg: "#e2e8f0", border: "#cbd5e1", dot: "#94a3b8" },
-        "Магера А.В.":     { bg: "#f0fdf4", border: "#dcfce7", dot: "#22c55e" },
-        "Мотузенко М.С.":  { bg: "#fff1f2", border: "#ffe4e6", dot: "#fda4af" },
-        "Бондар О.С.":     { bg: "#eff6ff", border: "#dbeafe", dot: "#60a5fa" },
-        "Кулик Д.І.":      { bg: "#f5f5f4", border: "#e7e5e4", dot: "#a8a29e" },
-        "Приймак А.І.":    { bg: "#f8fafc", border: "#e2e8f0", dot: "#64748b" },
-        "Шахляров Т.Е.":   { bg: "#f8fafc", border: "#e2e8f0", dot: "#64748b" },
-        "Хворостян В.В.":  { bg: "#f8fafc", border: "#e2e8f0", dot: "#64748b" }
-    };
-
     let currentDate = new Date();
-    // Нова чиста структура: { "YYYY-MM-DD": { dutyEmp: "", dutyType: "", absences: [{emp: "", type: ""}] } }
-    let schedule = JSON.parse(localStorage.getItem('duty_multi_schedule')) || {};
-    let activeBrushEmployee = "";
+    // Нова гнучка дата-структура: { "YYYY-MM-DD": { duties: [{emp:"", type:""}], absences: [{emp:"", type:""}] } }
+    let schedule = JSON.parse(localStorage.getItem('duty_v4_flexible')) || {};
 
     const monthsUA = [
         "Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
         "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"
     ];
-
-    function initBrushPanel() {
-        const container = document.getElementById('brushContainer');
-        container.innerHTML = allEmployees.map(emp => {
-            const colors = employeeColors[emp] || { border: "#e2e8f0", dot: "#64748b" };
-            return `<button class="brush-badge" data-brush-name="${emp}" onclick="selectBrush(\`${emp}\`)" style="border-color: ${colors.border}; background: #fff;"><span class="color-dot" style="background: ${colors.dot}"></span>${emp}</button>`;
-        }).join('');
-    }
-
-    function selectBrush(empName) {
-        activeBrushEmployee = empName;
-        document.querySelectorAll('.brush-badge').forEach(btn => btn.classList.remove('active'));
-        if(empName) document.querySelector(`[data-brush-name="${empName}"]`).classList.add('active');
-        else document.getElementById('btnBrushNone').classList.add('active');
-    }
 
     function getDateString(year, month, day) {
         return `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
@@ -403,54 +246,59 @@
         for(let day = 1; day <= totalDays; day++) {
             const dayCell = document.createElement('div');
             dayCell.className = 'calendar-day';
-            if([4, 5, 6, 0].includes(new Date(year, month, day).getDay())) dayCell.classList.add('critical-day');
-
             const dateStr = getDateString(year, month, day);
-            const dayData = schedule[dateStr] || { dutyEmp: "", dutyType: "", absences: [] };
+            const dayOfWeek = new Date(year, month, day).getDay();
+            if([4, 5, 6, 0].includes(dayOfWeek)) dayCell.classList.add('critical-day');
 
-            // Фарбуємо в колір чергового
-            if(dayData.dutyEmp && employeeColors[dayData.dutyEmp]) {
-                dayCell.style.backgroundColor = employeeColors[dayData.dutyEmp].bg;
-                dayCell.style.borderColor = employeeColors[dayData.dutyEmp].border;
-            }
+            const dayData = schedule[dateStr] || { duties: [], absences: [] };
 
-            // Швидкий пензлик наряду
-            dayCell.addEventListener('click', (e) => {
-                if (activeBrushEmployee && !['SELECT', 'BUTTON', 'OPTION'].includes(e.target.tagName)) {
-                    if (!schedule[dateStr]) schedule[dateStr] = { dutyEmp: "", dutyType: "", absences: [] };
-                    schedule[dateStr].dutyEmp = activeBrushEmployee;
-                    schedule[dateStr].dutyType = "duty";
-                    initCalendar();
-                }
-            });
+            // Рендер Списку 1: Наряди та Відпрацювання
+            let dutiesListHtml = dayData.duties.map((d, idx) => {
+                let c = d.type === 'duty' ? 'row-duty' : 'row-work';
+                let t = d.type === 'duty' ? '(X)' : '(В)';
+                return `<div class="item-row ${c}"><span>${t} ${d.emp.split(' ')[0]}</span><button class="btn-del" onclick="removeItem('${dateStr}','duties',${idx})">×</button></div>`;
+            }).join('');
 
-            // Рендер мульти-списку відсутностей
-            let absenceListHtml = dayData.absences.map((abs, index) => {
-                let statusClass = abs.type === 'vacation' ? 'ab-vacation' : (abs.type === 'trip' ? 'ab-trip' : 'ab-sick');
-                let statusText = abs.type === 'vacation' ? 'ВІДП' : (abs.type === 'trip' ? 'ВІДР' : 'ЛІК');
-                return `
-                    <div class="absence-row">
-                        <div class="absence-badge ${statusClass}"><b>${statusText}</b>: ${abs.emp.split(' ')[0]}</div>
-                        <button class="btn-delete-absence" onclick="deleteAbsence('${dateStr}', ${index})">×</button>
-                    </div>
-                `;
+            // Рендер Списку 2: Відпустки та Лікарняні
+            let absListHtml = dayData.absences.map((a, idx) => {
+                let c = a.type === 'vacation' ? 'row-vacation' : (a.type === 'trip' ? 'row-trip' : 'row-sick');
+                let t = a.type === 'vacation' ? 'ВІДП' : (a.type === 'trip' ? 'ВІДР' : 'ЛІК');
+                return `<div class="item-row ${c}"><span><b>${t}</b>: ${a.emp.split(' ')[0]}</span><button class="btn-del" onclick="removeItem('${dateStr}','absences',${idx})">×</button></div>`;
             }).join('');
 
             dayCell.innerHTML = `
                 <div class="day-header"><div class="day-number">${day}</div></div>
-                <select class="employee-select" onchange="updateDutyEmployee('${dateStr}', this.value)">
-                    <option value="">— Черговий (X) —</option>
-                    ${allEmployees.map(emp => `<option value="${emp}" ${dayData.dutyEmp === emp ? 'selected' : ''}>${emp}</option>`).join('')}
-                </select>
-                <select class="type-select" style="font-size:0.7rem;" onchange="updateDutyType('${dateStr}', this.value)" ${dayData.dutyEmp ? '' : 'disabled'}>
-                    <option value="duty" ${dayData.dutyType === 'duty' ? 'selected' : ''}>Добове чергування (X)</option>
-                    <option value="work" ${dayData.dutyType === 'work' ? 'selected' : ''}>Відпрацювання (В)</option>
-                </select>
                 
-                <div class="absence-section">
-                    <div class="absence-title">Відпустки / Лікарняні:</div>
-                    ${absenceListHtml}
-                    <button class="btn-add-absence" onclick="addAbsenceRow('${dateStr}')">+ Додати відсутнього</button>
+                <!-- ВЕРХНЯ ЗОНА: НАРЯДИ -->
+                <div class="day-section">
+                    <span class="section-title">🔴 Чергування / Відпрацювання</span>
+                    ${dutiesListHtml}
+                    <div class="add-box">
+                        <select class="quick-select" onchange="addItem('${dateStr}', 'duties', this.value)">
+                            <option value="">+ Додати...</option>
+                            <option value="duty:X">— Добове чергування (X) —</option>
+                            ${allEmployees.map(e => `<option value="duty:${e}">${e}</option>`).join('')}
+                            <option value="work:V">— Відпрацювання (В) —</option>
+                            ${allEmployees.map(e => `<option value="work:${e}">${e}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- НИЖНЯ ЗОНА: ВІДСУТНІСТЬ -->
+                <div class="day-section" style="margin-top:auto; border-top:1px dashed #e2e8f0; padding-top:4px;">
+                    <span class="section-title">🏖️ Відпустки / Лікарняні</span>
+                    ${absListHtml}
+                    <div class="add-box">
+                        <select class="quick-select" onchange="addItem('${dateStr}', 'absences', this.value)">
+                            <option value="">+ Додати...</option>
+                            <option value="vacation:X">— Відпустка —</option>
+                            ${allEmployees.map(e => `<option value="vacation:${e}">${e}</option>`).join('')}
+                            <option value="trip:X">— Відрядження —</option>
+                            ${allEmployees.map(e => `<option value="trip:${e}">${e}</option>`).join('')}
+                            <option value="sick:X">— Лікарняний —</option>
+                            ${allEmployees.map(e => `<option value="sick:${e}">${e}</option>`).join('')}
+                        </select>
+                    </div>
                 </div>
             `;
             grid.appendChild(dayCell);
@@ -458,35 +306,27 @@
         calculateStats();
     }
 
-    function updateDutyEmployee(dateStr, val) {
-        if(!schedule[dateStr]) schedule[dateStr] = { dutyEmp: "", dutyType: "", absences: [] };
-        schedule[dateStr].dutyEmp = val;
-        if(val && !schedule[dateStr].dutyType) schedule[dateStr].dutyType = "duty";
-        if(!val && schedule[dateStr].absences.length === 0) delete schedule[dateStr];
+    function addItem(dateStr, listType, compositeValue) {
+        if (!compositeValue) return;
+        const [type, empName] = compositeValue.split(':');
+        if (empName === 'X' || empName === 'V') return; // Заголовки-розділювачі списку
+
+        if (!schedule[dateStr]) schedule[dateStr] = { duties: [], absences: [] };
+        
+        // Захист від дублювання однієї людини в тій самій зоні в один день
+        const exists = schedule[dateStr][listType].some(item => item.emp === empName);
+        if (exists) { alert("Цей працівник вже доданий на цей день!"); initCalendar(); return; }
+
+        schedule[dateStr][listType].push({ emp: empName, type: type });
         initCalendar();
     }
 
-    function updateDutyType(dateStr, val) {
-        if(schedule[dateStr]) schedule[dateStr].dutyType = val;
-        initCalendar();
-    }
-
-    function addAbsenceRow(dateStr) {
-        let emp = prompt(`Введіть прізвище працівника зі списку:\n${allEmployees.join(', ')}`);
-        if(!emp || !allEmployees.includes(emp)) { alert("Неправильне прізвище!"); return; }
-        let type = prompt("Введіть тип статусу:\n1 - Відпустка\n2 - Відрядження\n3 - Лікарняний");
-        let typeStr = type === '1' ? 'vacation' : (type === '2' ? 'trip' : (type === '3' ? 'sick' : ''));
-        if(!typeStr) { alert("Неправильний статус!"); return; }
-
-        if(!schedule[dateStr]) schedule[dateStr] = { dutyEmp: "", dutyType: "", absences: [] };
-        schedule[dateStr].absences.push({ emp: emp, type: typeStr });
-        initCalendar();
-    }
-
-    function deleteAbsence(dateStr, index) {
-        if(schedule[dateStr]) {
-            schedule[dateStr].absences.splice(index, 1);
-            if(!schedule[dateStr].dutyEmp && schedule[dateStr].absences.length === 0) delete schedule[dateStr];
+    function removeItem(dateStr, listType, idx) {
+        if (schedule[dateStr]) {
+            schedule[dateStr][listType].splice(idx, 1);
+            if (schedule[dateStr].duties.length === 0 && schedule[dateStr].absences.length === 0) {
+                delete schedule[dateStr];
+            }
             initCalendar();
         }
     }
@@ -497,17 +337,22 @@
 
         Object.keys(schedule).forEach(dateStr => {
             const dayData = schedule[dateStr];
-            // Статистика нарядів
-            if(dayData.dutyEmp && stats[dayData.dutyEmp]) {
-                if(dayData.dutyType === 'duty') {
-                    stats[dayData.dutyEmp].duty++;
-                    let [y,m,d] = dateStr.split('-').map(Number);
-                    if([4,5,6,0].includes(new Date(y,m-1,d).getDay())) stats[dayData.dutyEmp].critical++;
-                } else if(dayData.dutyType === 'work') stats[dayData.dutyEmp].work++;
-            }
-            // Статистика відпусток/лікарняних
-            dayData.absences.forEach(abs => {
-                if(stats[abs.emp]) stats[abs.emp].other++;
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const isCritDay = [4, 5, 6, 0].includes(new Date(y, m - 1, d).getDay());
+
+            dayData.duties.forEach(item => {
+                if (stats[item.emp]) {
+                    if (item.type === 'duty') {
+                        stats[item.emp].duty++;
+                        if (isCritDay) stats[item.emp].critical++;
+                    } else if (item.type === 'work') {
+                        stats[item.emp].work++;
+                    }
+                }
+            });
+
+            dayData.absences.forEach(item => {
+                if (stats[item.emp]) stats[item.emp].other++;
             });
         });
 
@@ -516,8 +361,7 @@
                 let loadClass = stats[emp].duty >= 7 ? 'load-high' : (stats[emp].duty >= 4 ? 'load-medium' : 'load-low');
                 return `
                     <div class="stat-card">
-                        <div class="load-indicator ${loadClass}"></div>
-                        <div class="stat-name"><span class="color-dot" style="background:${(employeeColors[emp] || {}).dot || '#64748b'}"></span>${emp}</div>
+                        <div class="badge badge-total" style="text-align:left; font-weight:600; background:transparent; border:none; color:#1e293b;">${emp}</div>
                         <div class="badge badge-total">${stats[emp].duty}</div>
                         <div class="badge badge-critical">${stats[emp].critical}</div>
                         <div class="badge badge-work">${stats[emp].work}</div>
@@ -536,18 +380,22 @@
     }
 
     function saveToCloudAndLocal() {
-        localStorage.setItem('duty_multi_schedule', JSON.stringify(schedule));
+        localStorage.setItem('duty_v4_flexible', JSON.stringify(schedule));
         const saveBtn = document.querySelector('.btn[style*="var(--success)"]');
         saveBtn.innerText = "Зберігаємо...";
         saveBtn.disabled = true;
-        fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(schedule) })
-        .then(() => { alert('📊 Усі чергування та списки відпусток успішно збережено!'); })
-        .catch(() => { alert('Збережено локально.'); })
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(schedule)
+        })
+        .then(() => { alert('📊 Графік мульти-чергувань успішно синхронізовано з Google Диском!'); })
+        .catch(() => { alert('Збережено локально в браузері.'); })
         .finally(() => { saveBtn.innerText = "Зберегти зміни"; saveBtn.disabled = false; });
     }
 
-    initBrushPanel();
-    selectBrush('');
     initCalendar();
 </script>
 </body>
