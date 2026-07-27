@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DutyControl Pro — Мульти-Панель v5</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>DutyControl Pro — Мульти-Панель v7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            --panel-bg: rgba(255, 255, 255, 0.88);
+            --panel-bg: rgba(255, 255, 255, 0.9);
             --border-color: rgba(15, 23, 42, 0.08);
             --text-main: #0f172a;
             --text-muted: #64748b;
@@ -17,15 +17,22 @@
             --success: #10b981;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg-gradient); background-attachment: fixed; color: var(--text-main); min-height: 100vh; padding: 1.5rem; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', sans-serif; }
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 1.5rem;
+            -webkit-font-smoothing: antialiased;
+        }
 
         .container {
             max-width: 1850px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 1fr 480px;
-            gap: 1.5rem;
+            grid-template-columns: 1fr 460px;
+            gap: 1.25rem;
         }
 
         @media (max-width: 1400px) { .container { grid-template-columns: 1fr; } }
@@ -33,125 +40,183 @@
         header {
             grid-column: 1 / -1;
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
+            gap: 0.75rem;
             background: var(--panel-bg);
             backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
-            padding: 1rem 2rem;
-            border-radius: 20px;
+            padding: 0.9rem 1.6rem;
+            border-radius: 18px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         }
 
-        .logo-area h1 { font-size: 1.3rem; font-weight: 700; color: #1e293b; }
+        .logo-area h1 { font-family: 'Manrope', sans-serif; font-size: 1.2rem; font-weight: 800; color: #1e293b; letter-spacing: -0.02em; }
         .logo-area span { color: var(--accent-primary); }
-        .month-selector { display: flex; align-items: center; gap: 1rem; }
-        .current-month-title { font-size: 1.1rem; font-weight: 700; min-width: 160px; text-align: center; }
+        .month-selector { display: flex; align-items: center; gap: 0.85rem; }
+        .current-month-title { font-family: 'Manrope', sans-serif; font-size: 1.05rem; font-weight: 800; min-width: 150px; text-align: center; }
+        .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
         .btn {
             background: #ffffff;
             border: 1px solid rgba(15, 23, 42, 0.12);
             color: #1e293b;
-            padding: 0.5rem 1.2rem;
+            padding: 0.45rem 1rem;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s ease;
+            font-size: 0.82rem;
+            transition: all 0.15s ease;
         }
-        .btn:hover { border-color: var(--accent-primary); background: rgba(79, 70, 229, 0.04); }
+        .btn:hover { border-color: var(--accent-primary); background: rgba(79, 70, 229, 0.05); transform: translateY(-1px); }
+        .btn-notify { border-color: rgba(79,70,229,0.25); color: var(--accent-primary); background: rgba(79,70,229,0.04); }
+        .btn-save { border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); }
 
         /* КАЛЕНДАР */
         .main-panel {
             background: var(--panel-bg);
             backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 1.5rem;
+            border-radius: 22px;
+            padding: 1.25rem;
             box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.05);
         }
 
-        .weekdays-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; text-align: center; margin-bottom: 0.75rem; }
-        .weekday-label { color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+        .weekdays-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; margin-bottom: 0.6rem; }
+        .weekday-label {
+            color: var(--text-muted);
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0.4rem 0;
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.03);
+        }
+        .weekday-label.is-critical { color: #dc2626; background: rgba(239, 68, 68, 0.06); }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
 
         .calendar-day {
             background: #ffffff;
-            border: 1px solid rgba(15, 23, 42, 0.06);
-            border-radius: 16px;
-            min-height: 320px;
-            padding: 0.6rem;
+            border: 1px solid rgba(15, 23, 42, 0.07);
+            border-top: 3px solid rgba(15, 23, 42, 0.07);
+            border-radius: 14px;
+            min-height: 190px;
+            padding: 0.5rem 0.5rem 0.45rem;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.15s ease;
         }
-        .calendar-day.empty { background: transparent; border: none; pointer-events: none; }
+        .calendar-day.empty { background: transparent; border: none; pointer-events: none; box-shadow: none; }
 
-        .day-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px; }
-        .day-number { font-size: 1.05rem; font-weight: 700; color: #475569; }
-        .calendar-day.critical-day { background: #fffafb; }
+        .day-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 3px; padding-bottom: 4px; margin-bottom: 2px; border-bottom: 1px solid #f1f5f9; }
+        .day-number-wrap { display: flex; align-items: baseline; gap: 5px; }
+        .day-number { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 700; color: #334155; letter-spacing: -0.02em; }
+        .day-weekday { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em; }
         .calendar-day.critical-day .day-number { color: var(--critical-day); }
+        .calendar-day.critical-day .day-weekday { color: #ef9999; }
+
+        .duty-chip {
+            font-size: 0.58rem;
+            font-weight: 800;
+            color: #fff;
+            padding: 2px 7px;
+            border-radius: 20px;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+            max-width: 108px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .calendar-day.today { box-shadow: inset 0 0 0 2px var(--accent-primary); }
+        .calendar-day.today .day-header::after { content: "СЬОГОДНІ"; font-size: 0.53rem; font-weight: 800; color: var(--accent-primary); background: rgba(79,70,229,0.08); padding: 1px 5px; border-radius: 5px; }
 
         /* БЛОКИ СПИСКІВ ВСЕРЕДИНІ ДНЯ */
-        .day-section { display: flex; flex-direction: column; gap: 3px; }
-        .section-title { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.3px; }
+        .day-section { display: flex; flex-direction: column; gap: 2px; min-height: 0; }
+        .section-title { font-size: 0.56rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.03em; }
+        .item-list { display: flex; flex-direction: column; gap: 2px; max-height: 58px; overflow-y: auto; padding-right: 1px; }
+        .item-list::-webkit-scrollbar { width: 4px; }
+        .item-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
 
         .item-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 2px 5px;
-            border-radius: 6px;
-            font-size: 0.7rem;
+            border-radius: 5px;
+            font-size: 0.66rem;
             font-weight: 600;
-            border: 1px solid rgba(0,0,0,0.03);
+            border-left: 3px solid transparent;
+            gap: 4px;
+            white-space: nowrap;
         }
+        .item-row span { overflow: hidden; text-overflow: ellipsis; }
 
-        /* Стилі для різних нарядів та відпусток */
-        .row-duty { background: #eef2ff; color: #4f46e5; border-left: 3px solid #6366f1; }
-        .row-work { background: #ecfdf5; color: #065f46; border-left: 3px solid #10b981; }
-        .row-mgmt { background: #f8fafc; color: #0f172a; border-left: 3px solid #64748b; font-weight: 700; }
-        .row-vacation { background: #f0f9ff; color: #0369a1; border-left: 3px solid #38bdf8; }
-        .row-trip { background: #faf5ff; color: #6b21a8; border-left: 3px solid #c084fc; }
-        .row-sick { background: #fff7ed; color: #9a3412; border-left: 3px solid #fb923c; }
+        .btn-del { background: transparent; border: none; color: #cbd5e1; cursor: pointer; font-weight: bold; font-size: 0.8rem; padding: 0 2px; line-height: 1; flex-shrink: 0; }
+        .btn-del:hover { color: #ef4444; }
 
-        .btn-del { background: transparent; border: none; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 0.85rem; padding: 0 2px; }
-        
         /* Кнопки вибору */
         .add-box { display: flex; gap: 2px; margin-top: 1px; }
-        .quick-select { width: 100%; font-size: 0.7rem; padding: 2px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; background: #fff; font-weight: 500; }
+        .quick-select { width: 100%; font-size: 0.64rem; padding: 2px; border-radius: 5px; border: 1px solid #e2e8f0; outline: none; background: #fbfcfe; font-weight: 500; color: #64748b; }
 
         /* АНАЛІТИКА */
-        .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+        .sidebar { display: flex; flex-direction: column; gap: 1.25rem; }
         .stats-panel {
             background: var(--panel-bg);
             backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 1.5rem;
+            border-radius: 22px;
+            padding: 1.25rem 1.4rem;
             box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.05);
         }
-        .stats-panel h2 { font-size: 1.15rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; }
-        .stats-subheading { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent-primary); margin: 1rem 0 0.5rem 0; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 4px; }
-        .stats-list { display: flex; flex-direction: column; gap: 0.5rem; }
-        
+        .stats-panel h2 { font-family: 'Manrope', sans-serif; font-size: 1.05rem; font-weight: 800; color: #1e293b; margin-bottom: 0.9rem; }
+        .stats-subheading { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--accent-primary); margin: 1rem 0 0.5rem 0; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 4px; letter-spacing: 0.02em; }
+        .stats-list { display: flex; flex-direction: column; gap: 0.4rem; }
+
+        .stats-legend-header {
+            display: grid;
+            grid-template-columns: 140px repeat(5, 1fr);
+            gap: 0.4rem;
+            padding-bottom: 0.4rem;
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .stats-legend-header span:first-child { text-align: left; }
+
         .stat-card {
             background: #ffffff;
             border: 1px solid rgba(15, 23, 42, 0.06);
-            border-radius: 12px;
-            padding: 0.6rem 0.85rem;
-            display: grid;
-            grid-template-columns: 140px repeat(4, 1fr);
-            gap: 0.5rem;
-            align-items: center;
+            border-radius: 11px;
+            padding: 0.5rem 0.7rem 0.55rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
         }
-        .stat-name { font-weight: 600; font-size: 0.82rem; color: #334155; }
-        .badge { padding: 0.25rem 0.1rem; border-radius: 6px; font-size: 0.78rem; font-weight: 700; text-align: center; }
-        
+        .stat-top { display: grid; grid-template-columns: 140px repeat(5, 1fr); gap: 0.4rem; align-items: center; }
+        .stat-name { font-weight: 700; font-size: 0.78rem; color: #334155; display: flex; align-items: center; gap: 6px; }
+        .stat-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+        .badge { padding: 0.22rem 0.1rem; border-radius: 6px; font-size: 0.74rem; font-weight: 700; text-align: center; }
+
         .badge-total { background: rgba(79, 70, 229, 0.06); color: #4f46e5; border: 1px solid rgba(79, 70, 229, 0.15); }
         .badge-critical { background: rgba(239, 68, 68, 0.06); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); }
         .badge-work { background: rgba(16, 185, 129, 0.06); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.15); }
         .badge-other { background: rgba(100, 116, 139, 0.06); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.15); }
+        .badge-sum { background: #0f172a; color: #fff; border: 1px solid #0f172a; }
+
+        .stat-bar-track { height: 5px; border-radius: 3px; background: #f1f5f9; overflow: hidden; }
+        .stat-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+
+        .legend-note { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.9rem; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -159,14 +224,18 @@
 <div class="container">
     <header>
         <div class="logo-area">
-            <h1>DutyControl <span>LinearPro v5</span></h1>
+            <h1>DutyControl <span>Pro v7</span></h1>
         </div>
         <div class="month-selector">
             <button class="btn" onclick="changeMonth(-1)">◀</button>
             <div class="current-month-title" id="monthTitle">Липень 2026</div>
             <button class="btn" onclick="changeMonth(1)">▶</button>
         </div>
-        <button class="btn" style="border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.04);" onclick="saveToCloudAndLocal()">Зберегти зміни</button>
+        <div class="header-actions">
+            <button class="btn btn-notify" onclick="copyDutyMessage(0)">🔔 Наряд сьогодні</button>
+            <button class="btn btn-notify" onclick="copyDutyMessage(1)">🔔 Наряд завтра</button>
+            <button class="btn btn-save" onclick="saveToCloudAndLocal()">Зберегти зміни</button>
+        </div>
     </header>
 
     <main class="main-panel">
@@ -174,10 +243,10 @@
             <div class="weekday-label">Пн</div>
             <div class="weekday-label">Вт</div>
             <div class="weekday-label">Ср</div>
-            <div class="weekday-label">Чт</div>
-            <div class="weekday-label">Пт</div>
-            <div class="weekday-label">Сб</div>
-            <div class="weekday-label">Нд</div>
+            <div class="weekday-label is-critical">Чт</div>
+            <div class="weekday-label is-critical">Пт</div>
+            <div class="weekday-label is-critical">Сб</div>
+            <div class="weekday-label is-critical">Нд</div>
         </div>
         <div class="calendar-grid" id="calendarGrid"></div>
     </main>
@@ -185,19 +254,24 @@
     <aside class="sidebar">
         <div class="stats-panel">
             <h2>Аналітика нарядів та статусів</h2>
-            <div style="display: grid; grid-template-columns: 140px repeat(4, 1fr); gap: 0.5rem; padding-bottom: 0.5rem; color: var(--text-muted); font-size: 0.65rem; font-weight: bold; text-align: center; text-transform: uppercase;">
-                <span style="text-align: left;">Працівник</span>
+            <div class="stats-legend-header">
+                <span>Працівник</span>
                 <span>Черг.</span>
                 <span>Чт-Нд</span>
                 <span>Відпр.</span>
                 <span>Інше</span>
+                <span>Всього</span>
             </div>
-            
+
             <div class="stats-subheading">Основний склад співробітників</div>
             <div class="stats-list" id="statsListStaff"></div>
 
             <div class="stats-subheading">Відповідальні від керівництва</div>
             <div class="stats-list" id="statsListManagement"></div>
+
+            <div class="legend-note">
+                Колір біля кожного імені у списку — це «підпис» працівника: у календарі кожен запис пофарбований у той самий колір, тому легко відстежити, хто і де стоїть, навіть не читаючи прізвище. Смужка під цифрами показує навантаження відносно найзавантаженішого працівника групи.
+            </div>
         </div>
     </aside>
 </div>
@@ -213,31 +287,59 @@
     const management = [
         "Приймак А.І.", "Шахляров Т.Е.", "Хворостян В.В."
     ];
+    // Єдиний список — саме за індексом у ньому кожному працівнику присвоюється
+    // сталий колір (golden-angle розподіл відтінків, тому кольори завжди
+    // виглядають різними й приглушеними, скільки б людей не було).
+    const allEmployees = [...staff, ...management];
+
+    function employeeColor(name) {
+        const idx = allEmployees.indexOf(name);
+        const hue = Math.round(((idx >= 0 ? idx : 0) * 137.508) % 360);
+        return {
+            text: `hsl(${hue}, 42%, 30%)`,
+            bg: `hsl(${hue}, 60%, 95%)`,
+            border: `hsl(${hue}, 45%, 55%)`
+        };
+    }
 
     let currentDate = new Date();
     // Структура даних: { "YYYY-MM-DD": { duties: [], mgmt: [], absences: [] } }
-    let schedule = JSON.parse(localStorage.getItem('duty_v5_mgmt_fixed')) || {};
+    let schedule = JSON.parse(localStorage.getItem('duty_v6')) || JSON.parse(localStorage.getItem('duty_v5_mgmt_fixed')) || {};
 
     const monthsUA = [
         "Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
         "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"
     ];
+    const weekdaysShortUA = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 
     function getDateString(year, month, day) {
         return `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    }
+
+    function isSameDate(a, b) {
+        return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    }
+
+    function renderRow(item, label, dateStr, listType, idx) {
+        const c = employeeColor(item.emp);
+        return `<div class="item-row" style="background:${c.bg}; border-left-color:${c.border}; color:${c.text};">
+                    <span><b>${label}</b> ${item.emp.split(' ')[0]}</span>
+                    <button class="btn-del" onclick="removeItem('${dateStr}','${listType}',${idx})">×</button>
+                </div>`;
     }
 
     function initCalendar() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         document.getElementById('monthTitle').innerText = `${monthsUA[month]} ${year}`;
-        
+
         const firstDayIndex = new Date(year, month, 1).getDay();
         const adjustedFirstDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
         const totalDays = new Date(year, month + 1, 0).getDate();
-        
+
         const grid = document.getElementById('calendarGrid');
         grid.innerHTML = '';
+        const today = new Date();
 
         for(let i = 0; i < adjustedFirstDay; i++) {
             grid.appendChild(Object.assign(document.createElement('div'), {className: 'calendar-day empty'}));
@@ -245,41 +347,62 @@
 
         for(let day = 1; day <= totalDays; day++) {
             const dayCell = document.createElement('div');
-            dayCell.className = 'calendar-day';
             const dateStr = getDateString(year, month, day);
-            const dayOfWeek = new Date(year, month, day).getDay();
-            if([4, 5, 6, 0].includes(dayOfWeek)) dayCell.classList.add('critical-day');
+            const dateObj = new Date(year, month, day);
+            const dayOfWeek = dateObj.getDay();
+
+            dayCell.className = 'calendar-day';
+            const isCritDay = [4, 5, 6, 0].includes(dayOfWeek);
+            if (isCritDay) dayCell.classList.add('critical-day');
+            if (isSameDate(dateObj, today)) dayCell.classList.add('today');
 
             const dayData = schedule[dateStr] || { duties: [], mgmt: [], absences: [] };
 
-            // Рендер Списку 1: Наряди основного складу
-            let dutiesListHtml = (dayData.duties || []).map((d, idx) => {
-                let c = d.type === 'duty' ? 'row-duty' : 'row-work';
-                let t = d.type === 'duty' ? '(X)' : '(В)';
-                return `<div class="item-row ${c}"><span>${t} ${d.emp.split(' ')[0]}</span><button class="btn-del" onclick="removeItem('${dateStr}','duties',${idx})">×</button></div>`;
-            }).join('');
+            // Хто сьогодні на добовому чергуванні (тип 'duty' в основному складі) —
+            // саме його кольором "засвічуємо" всю клітинку дня.
+            const onDuty = (dayData.duties || []).filter(d => d.type === 'duty');
+            let cellStyle = '';
+            let dutyChipHtml = '';
+            if (onDuty.length === 1) {
+                const c = employeeColor(onDuty[0].emp);
+                cellStyle = `border-top-color:${c.border}; background: linear-gradient(180deg, ${c.bg} 0%, #ffffff 62%);`;
+                dutyChipHtml = `<span class="duty-chip" style="background:${c.border};">${onDuty[0].emp.split(' ')[0]}</span>`;
+            } else if (onDuty.length > 1) {
+                const bgTints = onDuty.map(d => employeeColor(d.emp).bg);
+                cellStyle = `border-top-color:#334155; background: linear-gradient(135deg, ${bgTints.join(', ')});`;
+                dutyChipHtml = `<span class="duty-chip" style="background:#334155;">${onDuty.length} чергових</span>`;
+            } else if (isCritDay) {
+                cellStyle = `background:#fffbfb;`;
+            }
+            if (cellStyle) dayCell.setAttribute('style', cellStyle);
 
-            // Рендер Списку 2: Керівництво (Тижневе)
-            let mgmtListHtml = (dayData.mgmt || []).map((m, idx) => {
-                let labels = { duty: '(К)', vacation: 'ВІДП', trip: 'ВІДР', sick: 'ЛІК' };
-                let classes = { duty: 'row-mgmt', vacation: 'row-vacation', trip: 'row-trip', sick: 'row-sick' };
-                return `<div class="item-row ${classes[m.type]}"><span><b>${labels[m.type]}</b> ${m.emp.split(' ')[0]}</span><button class="btn-del" onclick="removeItem('${dateStr}','mgmt',${idx})">×</button></div>`;
-            }).join('');
+            const dutiesListHtml = (dayData.duties || []).map((d, idx) =>
+                renderRow(d, d.type === 'duty' ? '(X)' : '(В)', dateStr, 'duties', idx)
+            ).join('');
 
-            // Рендер Списку 3: Відпустки основного складу
-            let absListHtml = (dayData.absences || []).map((a, idx) => {
-                let c = a.type === 'vacation' ? 'row-vacation' : (a.type === 'trip' ? 'row-trip' : 'row-sick');
-                let t = a.type === 'vacation' ? 'ВІДП' : (a.type === 'trip' ? 'ВІДР' : 'ЛІК');
-                return `<div class="item-row ${c}"><span><b>${t}</b>: ${a.emp.split(' ')[0]}</span><button class="btn-del" onclick="removeItem('${dateStr}','absences',${idx})">×</button></div>`;
-            }).join('');
+            const mgmtLabels = { duty: '(К)', vacation: 'ВІДП', sick: 'ЛІК' };
+            const mgmtListHtml = (dayData.mgmt || []).map((m, idx) =>
+                renderRow(m, mgmtLabels[m.type], dateStr, 'mgmt', idx)
+            ).join('');
+
+            const absLabels = { vacation: 'ВІДП', trip: 'ВІДР', sick: 'ЛІК' };
+            const absListHtml = (dayData.absences || []).map((a, idx) =>
+                renderRow(a, absLabels[a.type], dateStr, 'absences', idx)
+            ).join('');
 
             dayCell.innerHTML = `
-                <div class="day-header"><div class="day-number">${day}</div></div>
-                
+                <div class="day-header">
+                    <div class="day-number-wrap">
+                        <div class="day-number">${day}</div>
+                        <div class="day-weekday">${weekdaysShortUA[dayOfWeek]}</div>
+                    </div>
+                    ${dutyChipHtml}
+                </div>
+
                 <!-- 1. ЗОНА НАРАДІВ ОСНОВНОГО СКЛАДУ -->
                 <div class="day-section">
                     <span class="section-title">🔴 Основний склад (X/В)</span>
-                    ${dutiesListHtml}
+                    <div class="item-list">${dutiesListHtml}</div>
                     <div class="add-box">
                         <select class="quick-select" onchange="addItem('${dateStr}', 'duties', this.value)">
                             <option value="">+ Додати наряд...</option>
@@ -292,9 +415,9 @@
                 </div>
 
                 <!-- 2. ЗОНА ВІДПОВІДАЛЬНИХ ВІД КЕРІВНИЦТВА -->
-                <div class="day-section" style="border-top:1px dashed #e2e8f0; padding-top:3px;">
+                <div class="day-section" style="border-top:1px dashed #eef2f6; padding-top:3px;">
                     <span class="section-title">👔 Керівництво (Тиждень)</span>
-                    ${mgmtListHtml}
+                    <div class="item-list">${mgmtListHtml}</div>
                     <div class="add-box">
                         <select class="quick-select" onchange="addItem('${dateStr}', 'mgmt', this.value)">
                             <option value="">+ Задати статус...</option>
@@ -309,9 +432,9 @@
                 </div>
 
                 <!-- 3. ЗОНА ВІДСУТНОСТІ ОСНОВНОГО СКЛАДУ -->
-                <div class="day-section" style="margin-top:auto; border-top:1px dashed #e2e8f0; padding-top:3px;">
+                <div class="day-section" style="margin-top:auto; border-top:1px dashed #eef2f6; padding-top:3px;">
                     <span class="section-title">🏖️ Відпустки / Лікарняні</span>
-                    ${absListHtml}
+                    <div class="item-list">${absListHtml}</div>
                     <div class="add-box">
                         <select class="quick-select" onchange="addItem('${dateStr}', 'absences', this.value)">
                             <option value="">+ Додати відсутнього...</option>
@@ -333,11 +456,11 @@
     function addItem(dateStr, listType, compositeValue) {
         if (!compositeValue) return;
         const [type, empName] = compositeValue.split(':');
-        if (empName === 'X' || empName === 'V') return; 
+        if (empName === 'X' || empName === 'V') return;
 
         if (!schedule[dateStr]) schedule[dateStr] = { duties: [], mgmt: [], absences: [] };
         if (!schedule[dateStr].mgmt) schedule[dateStr].mgmt = []; // Захист структури старих збережень
-        
+
         const exists = schedule[dateStr][listType].some(item => item.emp === empName);
         if (exists) { alert("Цей працівник вже доданий у цю секцію на цей день!"); initCalendar(); return; }
 
@@ -348,8 +471,8 @@
     function removeItem(dateStr, listType, idx) {
         if (schedule[dateStr]) {
             schedule[dateStr][listType].splice(idx, 1);
-            if ((schedule[dateStr].duties || []).length === 0 && 
-                (schedule[dateStr].mgmt || []).length === 0 && 
+            if ((schedule[dateStr].duties || []).length === 0 &&
+                (schedule[dateStr].mgmt || []).length === 0 &&
                 (schedule[dateStr].absences || []).length === 0) {
                 delete schedule[dateStr];
             }
@@ -366,46 +489,58 @@
             const [y, m, d] = dateStr.split('-').map(Number);
             const isCritDay = [4, 5, 6, 0].includes(new Date(y, m - 1, d).getDay());
 
-            // Рахуємо наряди основного складу
             (dayData.duties || []).forEach(item => {
-                if (stats[item.emp]) {
-                    if (item.type === 'duty') {
-                        stats[item.emp].duty++;
-                        if (isCritDay) stats[item.emp].critical++;
-                    } else if (item.type === 'work') {
-                        stats[item.emp].work++;
-                    }
+                if (!stats[item.emp]) return;
+                if (item.type === 'duty') {
+                    stats[item.emp].duty++;
+                    if (isCritDay) stats[item.emp].critical++;
+                } else if (item.type === 'work') {
+                    stats[item.emp].work++;
                 }
             });
 
-            // Рахуємо статуси керівництва
             (dayData.mgmt || []).forEach(item => {
-                if (stats[item.emp]) {
-                    if (item.type === 'duty') {
-                        stats[item.emp].duty++; // Записуємо тижневе чергування в основні наряди керівництва
-                        if (isCritDay) stats[item.emp].critical++;
-                    } else {
-                        stats[item.emp].other++; // Відпустки/лікарняні керівництва йдуть в "Інше"
-                    }
+                if (!stats[item.emp]) return;
+                if (item.type === 'duty') {
+                    stats[item.emp].duty++;
+                    if (isCritDay) stats[item.emp].critical++;
+                } else {
+                    stats[item.emp].other++;
                 }
             });
 
-            // Рахуємо відпустки основного складу
             (dayData.absences || []).forEach(item => {
                 if (stats[item.emp]) stats[item.emp].other++;
             });
         });
 
         function renderGroup(group) {
-            return group.map(emp => `
+            const totals = group.map(emp => stats[emp].duty + stats[emp].work + stats[emp].other);
+            const maxTotal = Math.max(1, ...totals);
+
+            // Сортуємо за загальним навантаженням — одразу видно, хто найбільш завантажений
+            const ordered = [...group].sort((a, b) =>
+                (stats[b].duty + stats[b].work + stats[b].other) - (stats[a].duty + stats[a].work + stats[a].other)
+            );
+
+            return ordered.map(emp => {
+                const s = stats[emp];
+                const total = s.duty + s.work + s.other;
+                const c = employeeColor(emp);
+                const pct = Math.round((total / maxTotal) * 100);
+                return `
                 <div class="stat-card">
-                    <div class="badge badge-total" style="text-align:left; font-weight:600; background:transparent; border:none; color:#1e293b; padding-left:0;">${emp}</div>
-                    <div class="badge badge-total">${stats[emp].duty}</div>
-                    <div class="badge badge-critical">${stats[emp].critical}</div>
-                    <div class="badge badge-work">${stats[emp].work}</div>
-                    <div class="badge badge-other">${stats[emp].other}</div>
-                </div>
-            `).join('');
+                    <div class="stat-top">
+                        <div class="stat-name"><span class="stat-dot" style="background:${c.border};"></span>${emp}</div>
+                        <div class="badge badge-total">${s.duty}</div>
+                        <div class="badge badge-critical">${s.critical}</div>
+                        <div class="badge badge-work">${s.work}</div>
+                        <div class="badge badge-other">${s.other}</div>
+                        <div class="badge badge-sum">${total}</div>
+                    </div>
+                    <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${pct}%; background:${c.border};"></div></div>
+                </div>`;
+            }).join('');
         }
         document.getElementById('statsListStaff').innerHTML = renderGroup(staff);
         document.getElementById('statsListManagement').innerHTML = renderGroup(management);
@@ -416,9 +551,49 @@
         initCalendar();
     }
 
+    // --- Сповіщення про наряд (текст для Telegram/Viber/WhatsApp) ---
+    function generateDutyMessage(dateStr) {
+        const dayData = schedule[dateStr] || { duties: [], mgmt: [], absences: [] };
+        const [y, m, d] = dateStr.split('-').map(Number);
+        const dateObj = new Date(y, m - 1, d);
+        const dateFormatted = dateObj.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+
+        const lines = [`📋 Наряд на ${dateFormatted}:`, ''];
+
+        (dayData.duties || []).forEach(it => {
+            lines.push(it.type === 'duty' ? `🔴 Добове чергування: ${it.emp}` : `🟢 Відпрацювання: ${it.emp}`);
+        });
+        (dayData.mgmt || []).forEach(it => {
+            const labels = { duty: '👔 Відповідальний від керівництва', vacation: '🏖 Керівництво у відпустці', sick: '🤒 Керівництво на лікарняному' };
+            lines.push(`${labels[it.type]}: ${it.emp}`);
+        });
+        (dayData.absences || []).forEach(it => {
+            const labels = { vacation: '🏖 У відпустці', trip: '✈️ У відрядженні', sick: '🤒 На лікарняному' };
+            lines.push(`${labels[it.type]}: ${it.emp}`);
+        });
+
+        if (lines.length === 2) lines.push('Записів на цей день немає.');
+        return lines.join('\n');
+    }
+
+    function copyDutyMessage(offsetDays) {
+        const d = new Date();
+        d.setDate(d.getDate() + offsetDays);
+        const dateStr = getDateString(d.getFullYear(), d.getMonth(), d.getDate());
+        const msg = generateDutyMessage(dateStr);
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(msg)
+                .then(() => alert('✅ Текст скопійовано в буфер обміну. Вставте його в Telegram/Viber/WhatsApp:\n\n' + msg))
+                .catch(() => prompt('Скопіюйте текст вручну (Ctrl+C, Enter):', msg));
+        } else {
+            prompt('Скопіюйте текст вручну (Ctrl+C, Enter):', msg);
+        }
+    }
+
     function saveToCloudAndLocal() {
-        localStorage.setItem('duty_v5_mgmt_fixed', JSON.stringify(schedule));
-        const saveBtn = document.querySelector('.btn[style*="var(--success)"]');
+        localStorage.setItem('duty_v6', JSON.stringify(schedule));
+        const saveBtn = document.querySelector('.btn-save');
         saveBtn.innerText = "Зберігаємо...";
         saveBtn.disabled = true;
 
@@ -428,7 +603,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(schedule)
         })
-        .then(() => { alert('📊 Календар із тижневими статусами керівництва успішно збережено в хмару!'); })
+        .then(() => { alert('📊 Календар успішно збережено в хмару!'); })
         .catch(() => { alert('Збережено локально в браузері.'); })
         .finally(() => { saveBtn.innerText = "Зберегти зміни"; saveBtn.disabled = false; });
     }
