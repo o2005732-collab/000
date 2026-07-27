@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DutyControl Pro — Мульти-Панель</title>
+    <title>DutyControl Pro — Мульти-Панель v5</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -78,11 +78,11 @@
             background: #ffffff;
             border: 1px solid rgba(15, 23, 42, 0.06);
             border-radius: 16px;
-            min-height: 260px;
+            min-height: 320px;
             padding: 0.6rem;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.01);
         }
         .calendar-day.empty { background: transparent; border: none; pointer-events: none; }
@@ -93,23 +93,24 @@
         .calendar-day.critical-day .day-number { color: var(--critical-day); }
 
         /* БЛОКИ СПИСКІВ ВСЕРЕДИНІ ДНЯ */
-        .day-section { display: flex; flex-direction: column; gap: 4px; }
-        .section-title { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.3px; }
+        .day-section { display: flex; flex-direction: column; gap: 3px; }
+        .section-title { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.3px; }
 
         .item-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 2px 6px;
+            padding: 2px 5px;
             border-radius: 6px;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            border: 1px solid rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.03);
         }
 
         /* Стилі для різних нарядів та відпусток */
         .row-duty { background: #eef2ff; color: #4f46e5; border-left: 3px solid #6366f1; }
         .row-work { background: #ecfdf5; color: #065f46; border-left: 3px solid #10b981; }
+        .row-mgmt { background: #f8fafc; color: #0f172a; border-left: 3px solid #64748b; font-weight: 700; }
         .row-vacation { background: #f0f9ff; color: #0369a1; border-left: 3px solid #38bdf8; }
         .row-trip { background: #faf5ff; color: #6b21a8; border-left: 3px solid #c084fc; }
         .row-sick { background: #fff7ed; color: #9a3412; border-left: 3px solid #fb923c; }
@@ -117,8 +118,8 @@
         .btn-del { background: transparent; border: none; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 0.85rem; padding: 0 2px; }
         
         /* Кнопки вибору */
-        .add-box { display: flex; gap: 2px; margin-top: 2px; }
-        .quick-select { flex: 1; font-size: 0.72rem; padding: 2px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; background: #fff; font-weight: 500; }
+        .add-box { display: flex; gap: 2px; margin-top: 1px; }
+        .quick-select { width: 100%; font-size: 0.7rem; padding: 2px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; background: #fff; font-weight: 500; }
 
         /* АНАЛІТИКА */
         .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
@@ -158,7 +159,7 @@
 <div class="container">
     <header>
         <div class="logo-area">
-            <h1>DutyControl <span>Pro v4</span></h1>
+            <h1>DutyControl <span>LinearPro v5</span></h1>
         </div>
         <div class="month-selector">
             <button class="btn" onclick="changeMonth(-1)">◀</button>
@@ -210,13 +211,12 @@
         "Романов В.М.", "Магера А.В.", "Мотузенко М.С.", "Бондар О.С.", "Кулик Д.І."
     ];
     const management = [
-        "Приймак А.І.", "Шахляров Т.E.", "Хворостян В.В."
+        "Приймак А.І.", "Шахляров Т.Е.", "Хворостян В.В."
     ];
-    const allEmployees = [...staff, ...management];
 
     let currentDate = new Date();
-    // Нова гнучка дата-структура: { "YYYY-MM-DD": { duties: [{emp:"", type:""}], absences: [{emp:"", type:""}] } }
-    let schedule = JSON.parse(localStorage.getItem('duty_v4_flexible')) || {};
+    // Структура даних: { "YYYY-MM-DD": { duties: [], mgmt: [], absences: [] } }
+    let schedule = JSON.parse(localStorage.getItem('duty_v5_mgmt_fixed')) || {};
 
     const monthsUA = [
         "Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
@@ -250,17 +250,24 @@
             const dayOfWeek = new Date(year, month, day).getDay();
             if([4, 5, 6, 0].includes(dayOfWeek)) dayCell.classList.add('critical-day');
 
-            const dayData = schedule[dateStr] || { duties: [], absences: [] };
+            const dayData = schedule[dateStr] || { duties: [], mgmt: [], absences: [] };
 
-            // Рендер Списку 1: Наряди та Відпрацювання
-            let dutiesListHtml = dayData.duties.map((d, idx) => {
+            // Рендер Списку 1: Наряди основного складу
+            let dutiesListHtml = (dayData.duties || []).map((d, idx) => {
                 let c = d.type === 'duty' ? 'row-duty' : 'row-work';
                 let t = d.type === 'duty' ? '(X)' : '(В)';
                 return `<div class="item-row ${c}"><span>${t} ${d.emp.split(' ')[0]}</span><button class="btn-del" onclick="removeItem('${dateStr}','duties',${idx})">×</button></div>`;
             }).join('');
 
-            // Рендер Списку 2: Відпустки та Лікарняні
-            let absListHtml = dayData.absences.map((a, idx) => {
+            // Рендер Списку 2: Керівництво (Тижневе)
+            let mgmtListHtml = (dayData.mgmt || []).map((m, idx) => {
+                let labels = { duty: '(К)', vacation: 'ВІДП', trip: 'ВІДР', sick: 'ЛІК' };
+                let classes = { duty: 'row-mgmt', vacation: 'row-vacation', trip: 'row-trip', sick: 'row-sick' };
+                return `<div class="item-row ${classes[m.type]}"><span><b>${labels[m.type]}</b> ${m.emp.split(' ')[0]}</span><button class="btn-del" onclick="removeItem('${dateStr}','mgmt',${idx})">×</button></div>`;
+            }).join('');
+
+            // Рендер Списку 3: Відпустки основного складу
+            let absListHtml = (dayData.absences || []).map((a, idx) => {
                 let c = a.type === 'vacation' ? 'row-vacation' : (a.type === 'trip' ? 'row-trip' : 'row-sick');
                 let t = a.type === 'vacation' ? 'ВІДП' : (a.type === 'trip' ? 'ВІДР' : 'ЛІК');
                 return `<div class="item-row ${c}"><span><b>${t}</b>: ${a.emp.split(' ')[0]}</span><button class="btn-del" onclick="removeItem('${dateStr}','absences',${idx})">×</button></div>`;
@@ -269,34 +276,51 @@
             dayCell.innerHTML = `
                 <div class="day-header"><div class="day-number">${day}</div></div>
                 
-                <!-- ВЕРХНЯ ЗОНА: НАРЯДИ -->
+                <!-- 1. ЗОНА НАРАДІВ ОСНОВНОГО СКЛАДУ -->
                 <div class="day-section">
-                    <span class="section-title">🔴 Чергування / Відпрацювання</span>
+                    <span class="section-title">🔴 Основний склад (X/В)</span>
                     ${dutiesListHtml}
                     <div class="add-box">
                         <select class="quick-select" onchange="addItem('${dateStr}', 'duties', this.value)">
-                            <option value="">+ Додати...</option>
+                            <option value="">+ Додати наряд...</option>
                             <option value="duty:X">— Добове чергування (X) —</option>
-                            ${allEmployees.map(e => `<option value="duty:${e}">${e}</option>`).join('')}
+                            ${staff.map(e => `<option value="duty:${e}">${e}</option>`).join('')}
                             <option value="work:V">— Відпрацювання (В) —</option>
-                            ${allEmployees.map(e => `<option value="work:${e}">${e}</option>`).join('')}
+                            ${staff.map(e => `<option value="work:${e}">${e}</option>`).join('')}
                         </select>
                     </div>
                 </div>
 
-                <!-- НИЖНЯ ЗОНА: ВІДСУТНІСТЬ -->
-                <div class="day-section" style="margin-top:auto; border-top:1px dashed #e2e8f0; padding-top:4px;">
+                <!-- 2. ЗОНА ВІДПОВІДАЛЬНИХ ВІД КЕРІВНИЦТВА -->
+                <div class="day-section" style="border-top:1px dashed #e2e8f0; padding-top:3px;">
+                    <span class="section-title">👔 Керівництво (Тиждень)</span>
+                    ${mgmtListHtml}
+                    <div class="add-box">
+                        <select class="quick-select" onchange="addItem('${dateStr}', 'mgmt', this.value)">
+                            <option value="">+ Задати статус...</option>
+                            <option value="duty:X">— На тижневе чергування (К) —</option>
+                            ${management.map(e => `<option value="duty:${e}">${e}</option>`).join('')}
+                            <option value="vacation:X">— Відпустка керівництва —</option>
+                            ${management.map(e => `<option value="vacation:${e}">${e}</option>`).join('')}
+                            <option value="sick:X">— Лікарняний керівництва —</option>
+                            ${management.map(e => `<option value="sick:${e}">${e}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 3. ЗОНА ВІДСУТНОСТІ ОСНОВНОГО СКЛАДУ -->
+                <div class="day-section" style="margin-top:auto; border-top:1px dashed #e2e8f0; padding-top:3px;">
                     <span class="section-title">🏖️ Відпустки / Лікарняні</span>
                     ${absListHtml}
                     <div class="add-box">
                         <select class="quick-select" onchange="addItem('${dateStr}', 'absences', this.value)">
-                            <option value="">+ Додати...</option>
+                            <option value="">+ Додати відсутнього...</option>
                             <option value="vacation:X">— Відпустка —</option>
-                            ${allEmployees.map(e => `<option value="vacation:${e}">${e}</option>`).join('')}
+                            ${staff.map(e => `<option value="vacation:${e}">${e}</option>`).join('')}
                             <option value="trip:X">— Відрядження —</option>
-                            ${allEmployees.map(e => `<option value="trip:${e}">${e}</option>`).join('')}
+                            ${staff.map(e => `<option value="trip:${e}">${e}</option>`).join('')}
                             <option value="sick:X">— Лікарняний —</option>
-                            ${allEmployees.map(e => `<option value="sick:${e}">${e}</option>`).join('')}
+                            ${staff.map(e => `<option value="sick:${e}">${e}</option>`).join('')}
                         </select>
                     </div>
                 </div>
@@ -309,13 +333,13 @@
     function addItem(dateStr, listType, compositeValue) {
         if (!compositeValue) return;
         const [type, empName] = compositeValue.split(':');
-        if (empName === 'X' || empName === 'V') return; // Заголовки-розділювачі списку
+        if (empName === 'X' || empName === 'V') return; 
 
-        if (!schedule[dateStr]) schedule[dateStr] = { duties: [], absences: [] };
+        if (!schedule[dateStr]) schedule[dateStr] = { duties: [], mgmt: [], absences: [] };
+        if (!schedule[dateStr].mgmt) schedule[dateStr].mgmt = []; // Захист структури старих збережень
         
-        // Захист від дублювання однієї людини в тій самій зоні в один день
         const exists = schedule[dateStr][listType].some(item => item.emp === empName);
-        if (exists) { alert("Цей працівник вже доданий на цей день!"); initCalendar(); return; }
+        if (exists) { alert("Цей працівник вже доданий у цю секцію на цей день!"); initCalendar(); return; }
 
         schedule[dateStr][listType].push({ emp: empName, type: type });
         initCalendar();
@@ -324,7 +348,9 @@
     function removeItem(dateStr, listType, idx) {
         if (schedule[dateStr]) {
             schedule[dateStr][listType].splice(idx, 1);
-            if (schedule[dateStr].duties.length === 0 && schedule[dateStr].absences.length === 0) {
+            if ((schedule[dateStr].duties || []).length === 0 && 
+                (schedule[dateStr].mgmt || []).length === 0 && 
+                (schedule[dateStr].absences || []).length === 0) {
                 delete schedule[dateStr];
             }
             initCalendar();
@@ -340,7 +366,8 @@
             const [y, m, d] = dateStr.split('-').map(Number);
             const isCritDay = [4, 5, 6, 0].includes(new Date(y, m - 1, d).getDay());
 
-            dayData.duties.forEach(item => {
+            // Рахуємо наряди основного складу
+            (dayData.duties || []).forEach(item => {
                 if (stats[item.emp]) {
                     if (item.type === 'duty') {
                         stats[item.emp].duty++;
@@ -351,24 +378,34 @@
                 }
             });
 
-            dayData.absences.forEach(item => {
+            // Рахуємо статуси керівництва
+            (dayData.mgmt || []).forEach(item => {
+                if (stats[item.emp]) {
+                    if (item.type === 'duty') {
+                        stats[item.emp].duty++; // Записуємо тижневе чергування в основні наряди керівництва
+                        if (isCritDay) stats[item.emp].critical++;
+                    } else {
+                        stats[item.emp].other++; // Відпустки/лікарняні керівництва йдуть в "Інше"
+                    }
+                }
+            });
+
+            // Рахуємо відпустки основного складу
+            (dayData.absences || []).forEach(item => {
                 if (stats[item.emp]) stats[item.emp].other++;
             });
         });
 
         function renderGroup(group) {
-            return group.map(emp => {
-                let loadClass = stats[emp].duty >= 7 ? 'load-high' : (stats[emp].duty >= 4 ? 'load-medium' : 'load-low');
-                return `
-                    <div class="stat-card">
-                        <div class="badge badge-total" style="text-align:left; font-weight:600; background:transparent; border:none; color:#1e293b;">${emp}</div>
-                        <div class="badge badge-total">${stats[emp].duty}</div>
-                        <div class="badge badge-critical">${stats[emp].critical}</div>
-                        <div class="badge badge-work">${stats[emp].work}</div>
-                        <div class="badge badge-other">${stats[emp].other}</div>
-                    </div>
-                `;
-            }).join('');
+            return group.map(emp => `
+                <div class="stat-card">
+                    <div class="badge badge-total" style="text-align:left; font-weight:600; background:transparent; border:none; color:#1e293b; padding-left:0;">${emp}</div>
+                    <div class="badge badge-total">${stats[emp].duty}</div>
+                    <div class="badge badge-critical">${stats[emp].critical}</div>
+                    <div class="badge badge-work">${stats[emp].work}</div>
+                    <div class="badge badge-other">${stats[emp].other}</div>
+                </div>
+            `).join('');
         }
         document.getElementById('statsListStaff').innerHTML = renderGroup(staff);
         document.getElementById('statsListManagement').innerHTML = renderGroup(management);
@@ -380,7 +417,7 @@
     }
 
     function saveToCloudAndLocal() {
-        localStorage.setItem('duty_v4_flexible', JSON.stringify(schedule));
+        localStorage.setItem('duty_v5_mgmt_fixed', JSON.stringify(schedule));
         const saveBtn = document.querySelector('.btn[style*="var(--success)"]');
         saveBtn.innerText = "Зберігаємо...";
         saveBtn.disabled = true;
@@ -391,7 +428,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(schedule)
         })
-        .then(() => { alert('📊 Графік мульти-чергувань успішно синхронізовано з Google Диском!'); })
+        .then(() => { alert('📊 Календар із тижневими статусами керівництва успішно збережено в хмару!'); })
         .catch(() => { alert('Збережено локально в браузері.'); })
         .finally(() => { saveBtn.innerText = "Зберегти зміни"; saveBtn.disabled = false; });
     }
