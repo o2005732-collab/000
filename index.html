@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DutyControl Pro — Мульти-Панель v7</title>
+    <title>DutyControl Pro — Мульти-Панель v8</title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -14,6 +14,7 @@
             --text-muted: #64748b;
             --accent-primary: #4f46e5;
             --critical-day: #ef4444;
+            --good-day: #059669;
             --success: #10b981;
         }
 
@@ -72,6 +73,7 @@
         .btn:hover { border-color: var(--accent-primary); background: rgba(79, 70, 229, 0.05); transform: translateY(-1px); }
         .btn-notify { border-color: rgba(79,70,229,0.25); color: var(--accent-primary); background: rgba(79,70,229,0.04); }
         .btn-save { border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); }
+        .btn-auto { border-color: rgba(5, 150, 105, 0.3); color: var(--good-day); background: rgba(5, 150, 105, 0.05); }
 
         /* КАЛЕНДАР */
         .main-panel {
@@ -95,6 +97,7 @@
             background: rgba(15, 23, 42, 0.03);
         }
         .weekday-label.is-critical { color: #dc2626; background: rgba(239, 68, 68, 0.06); }
+        .weekday-label.is-good { color: var(--good-day); background: rgba(5, 150, 105, 0.08); }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
 
         .calendar-day {
@@ -120,6 +123,8 @@
         .day-weekday { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em; }
         .calendar-day.critical-day .day-number { color: var(--critical-day); }
         .calendar-day.critical-day .day-weekday { color: #ef9999; }
+        .calendar-day.good-day .day-number { color: var(--good-day); }
+        .calendar-day.good-day .day-weekday { color: #6ee7b7; }
 
         .duty-chip {
             font-size: 0.58rem;
@@ -181,15 +186,15 @@
 
         .stats-legend-header {
             display: grid;
-            grid-template-columns: 140px repeat(5, 1fr);
-            gap: 0.4rem;
+            grid-template-columns: 130px repeat(7, 1fr);
+            gap: 0.35rem;
             padding-bottom: 0.4rem;
             color: var(--text-muted);
-            font-size: 0.6rem;
+            font-size: 0.58rem;
             font-weight: 800;
             text-align: center;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.01em;
         }
         .stats-legend-header span:first-child { text-align: left; }
 
@@ -202,13 +207,14 @@
             flex-direction: column;
             gap: 0.35rem;
         }
-        .stat-top { display: grid; grid-template-columns: 140px repeat(5, 1fr); gap: 0.4rem; align-items: center; }
-        .stat-name { font-weight: 700; font-size: 0.78rem; color: #334155; display: flex; align-items: center; gap: 6px; }
+        .stat-top { display: grid; grid-template-columns: 130px repeat(7, 1fr); gap: 0.35rem; align-items: center; }
+        .stat-name { font-weight: 700; font-size: 0.76rem; color: #334155; display: flex; align-items: center; gap: 6px; }
         .stat-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-        .badge { padding: 0.22rem 0.1rem; border-radius: 6px; font-size: 0.74rem; font-weight: 700; text-align: center; }
+        .badge { padding: 0.22rem 0.1rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700; text-align: center; }
 
         .badge-total { background: rgba(79, 70, 229, 0.06); color: #4f46e5; border: 1px solid rgba(79, 70, 229, 0.15); }
-        .badge-critical { background: rgba(239, 68, 68, 0.06); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); }
+        .badge-thu { background: rgba(5, 150, 105, 0.07); color: var(--good-day); border: 1px solid rgba(5, 150, 105, 0.18); }
+        .badge-weekend { background: rgba(239, 68, 68, 0.06); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); }
         .badge-work { background: rgba(16, 185, 129, 0.06); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.15); }
         .badge-other { background: rgba(100, 116, 139, 0.06); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.15); }
         .badge-sum { background: #0f172a; color: #fff; border: 1px solid #0f172a; }
@@ -224,7 +230,7 @@
 <div class="container">
     <header>
         <div class="logo-area">
-            <h1>DutyControl <span>Pro v7</span></h1>
+            <h1>DutyControl <span>Pro v8</span></h1>
         </div>
         <div class="month-selector">
             <button class="btn" onclick="changeMonth(-1)">◀</button>
@@ -234,6 +240,7 @@
         <div class="header-actions">
             <button class="btn btn-notify" onclick="copyDutyMessage(0)">🔔 Наряд сьогодні</button>
             <button class="btn btn-notify" onclick="copyDutyMessage(1)">🔔 Наряд завтра</button>
+            <button class="btn btn-auto" onclick="autoFillNextMonth()">🤖 Заповнити наступний місяць</button>
             <button class="btn btn-save" onclick="saveToCloudAndLocal()">Зберегти зміни</button>
         </div>
     </header>
@@ -243,8 +250,8 @@
             <div class="weekday-label">Пн</div>
             <div class="weekday-label">Вт</div>
             <div class="weekday-label">Ср</div>
-            <div class="weekday-label is-critical">Чт</div>
-            <div class="weekday-label is-critical">Пт</div>
+            <div class="weekday-label is-good">Чт</div>
+            <div class="weekday-label">Пт</div>
             <div class="weekday-label is-critical">Сб</div>
             <div class="weekday-label is-critical">Нд</div>
         </div>
@@ -257,7 +264,9 @@
             <div class="stats-legend-header">
                 <span>Працівник</span>
                 <span>Черг.</span>
-                <span>Чт-Нд</span>
+                <span>Чт</span>
+                <span>Сб</span>
+                <span>Нд</span>
                 <span>Відпр.</span>
                 <span>Інше</span>
                 <span>Всього</span>
@@ -271,6 +280,8 @@
 
             <div class="legend-note">
                 Колір біля кожного імені у списку — це «підпис» працівника: у календарі кожен запис пофарбований у той самий колір, тому легко відстежити, хто і де стоїть, навіть не читаючи прізвище. Смужка під цифрами показує навантаження відносно найзавантаженішого працівника групи.
+                <br><br>
+                Четвер, субота і неділя рахуються окремими колонками — саме ці дні найчутливіші до справедливого розподілу (четвер дає три вихідні поспіль, субота — найменш бажаний день). «Інше» (відпустки, відрядження, лікарняні) у загальний підсумок «Всього» не входить.
             </div>
         </div>
     </aside>
@@ -304,7 +315,7 @@
 
     let currentDate = new Date();
     // Структура даних: { "YYYY-MM-DD": { duties: [], mgmt: [], absences: [] } }
-    let schedule = JSON.parse(localStorage.getItem('duty_v6')) || JSON.parse(localStorage.getItem('duty_v5_mgmt_fixed')) || {};
+    let schedule = JSON.parse(localStorage.getItem('duty_v7')) || JSON.parse(localStorage.getItem('duty_v6')) || JSON.parse(localStorage.getItem('duty_v5_mgmt_fixed')) || {};
 
     const monthsUA = [
         "Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
@@ -352,8 +363,13 @@
             const dayOfWeek = dateObj.getDay();
 
             dayCell.className = 'calendar-day';
-            const isCritDay = [4, 5, 6, 0].includes(dayOfWeek);
+            // Критичні (найменш бажані) дні — лише субота і неділя.
+            const isCritDay = [6, 0].includes(dayOfWeek);
+            // Четвер тепер окремо виділяється як "хороший" день чергування
+            // (після нього три вихідних поспіль).
+            const isGoodDay = dayOfWeek === 4;
             if (isCritDay) dayCell.classList.add('critical-day');
+            if (isGoodDay) dayCell.classList.add('good-day');
             if (isSameDate(dateObj, today)) dayCell.classList.add('today');
 
             const dayData = schedule[dateStr] || { duties: [], mgmt: [], absences: [] };
@@ -373,6 +389,8 @@
                 dutyChipHtml = `<span class="duty-chip" style="background:#334155;">${onDuty.length} чергових</span>`;
             } else if (isCritDay) {
                 cellStyle = `background:#fffbfb;`;
+            } else if (isGoodDay) {
+                cellStyle = `background:#f2fdf8;`;
             }
             if (cellStyle) dayCell.setAttribute('style', cellStyle);
 
@@ -480,20 +498,26 @@
         }
     }
 
-    function calculateStats() {
+    // Рахує "сирі" накопичені показники по кожному працівнику за всю історію
+    // schedule. Використовується і для відображення аналітики, і для
+    // алгоритму автозаповнення наступного місяця (щоб він бачив реальне
+    // навантаження, а не тільки поточний місяць).
+    function computeStats() {
         const stats = {};
-        allEmployees.forEach(emp => { stats[emp] = { duty: 0, critical: 0, work: 0, other: 0 }; });
+        allEmployees.forEach(emp => { stats[emp] = { duty: 0, thu: 0, sat: 0, sun: 0, work: 0, other: 0 }; });
 
         Object.keys(schedule).forEach(dateStr => {
             const dayData = schedule[dateStr];
             const [y, m, d] = dateStr.split('-').map(Number);
-            const isCritDay = [4, 5, 6, 0].includes(new Date(y, m - 1, d).getDay());
+            const dow = new Date(y, m - 1, d).getDay();
 
             (dayData.duties || []).forEach(item => {
                 if (!stats[item.emp]) return;
                 if (item.type === 'duty') {
                     stats[item.emp].duty++;
-                    if (isCritDay) stats[item.emp].critical++;
+                    if (dow === 4) stats[item.emp].thu++;
+                    else if (dow === 6) stats[item.emp].sat++;
+                    else if (dow === 0) stats[item.emp].sun++;
                 } else if (item.type === 'work') {
                     stats[item.emp].work++;
                 }
@@ -503,7 +527,9 @@
                 if (!stats[item.emp]) return;
                 if (item.type === 'duty') {
                     stats[item.emp].duty++;
-                    if (isCritDay) stats[item.emp].critical++;
+                    if (dow === 4) stats[item.emp].thu++;
+                    else if (dow === 6) stats[item.emp].sat++;
+                    else if (dow === 0) stats[item.emp].sun++;
                 } else {
                     stats[item.emp].other++;
                 }
@@ -514,18 +540,25 @@
             });
         });
 
+        return stats;
+    }
+
+    function calculateStats() {
+        const stats = computeStats();
+
         function renderGroup(group) {
-            const totals = group.map(emp => stats[emp].duty + stats[emp].work + stats[emp].other);
+            // "Всього" рахує лише чергування + відпрацювання. Відпустки/
+            // відрядження/лікарняні ("Інше") у загальний підсумок не входять.
+            const totals = group.map(emp => stats[emp].duty + stats[emp].work);
             const maxTotal = Math.max(1, ...totals);
 
-            // Сортуємо за загальним навантаженням — одразу видно, хто найбільш завантажений
             const ordered = [...group].sort((a, b) =>
-                (stats[b].duty + stats[b].work + stats[b].other) - (stats[a].duty + stats[a].work + stats[a].other)
+                (stats[b].duty + stats[b].work) - (stats[a].duty + stats[a].work)
             );
 
             return ordered.map(emp => {
                 const s = stats[emp];
-                const total = s.duty + s.work + s.other;
+                const total = s.duty + s.work;
                 const c = employeeColor(emp);
                 const pct = Math.round((total / maxTotal) * 100);
                 return `
@@ -533,7 +566,9 @@
                     <div class="stat-top">
                         <div class="stat-name"><span class="stat-dot" style="background:${c.border};"></span>${emp}</div>
                         <div class="badge badge-total">${s.duty}</div>
-                        <div class="badge badge-critical">${s.critical}</div>
+                        <div class="badge badge-thu">${s.thu}</div>
+                        <div class="badge badge-weekend">${s.sat}</div>
+                        <div class="badge badge-weekend">${s.sun}</div>
                         <div class="badge badge-work">${s.work}</div>
                         <div class="badge badge-other">${s.other}</div>
                         <div class="badge badge-sum">${total}</div>
@@ -548,6 +583,95 @@
 
     function changeMonth(direction) {
         currentDate.setMonth(currentDate.getMonth() + direction);
+        initCalendar();
+    }
+
+    // Перевіряє, чи працівник вже зайнятий/відсутній цього дня в будь-якій
+    // із трьох секцій (наряд, керівництво, відпустка/відрядження/лікарняний).
+    function isEmployeeUnavailable(dateStr, empName) {
+        const dayData = schedule[dateStr];
+        if (!dayData) return false;
+        return (dayData.absences || []).some(a => a.emp === empName) ||
+               (dayData.duties || []).some(d => d.emp === empName) ||
+               (dayData.mgmt || []).some(m => m.emp === empName);
+    }
+
+    // Автоматичний розподіл добових чергувань (X) основного складу на
+    // наступний місяць. Враховує:
+    //  - вже накопичене навантаження (з усієї історії schedule), включно
+    //    з окремим рахунком по четвергах/суботах/неділях;
+    //  - вже заздалегідь проставлені відпустки/відрядження/лікарняні —
+    //    таких людей у ці дні пропускає;
+    //  - вже вручну проставлені наряди — не перезаписує;
+    //  - намагається не ставити одну й ту саму людину два дні поспіль.
+    function autoFillNextMonth() {
+        const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+        const year = targetDate.getFullYear();
+        const month = targetDate.getMonth();
+        const totalDays = new Date(year, month + 1, 0).getDate();
+        const monthLabel = `${monthsUA[month]} ${year}`;
+
+        const proceed = confirm(
+            `Автоматично розподілити добові чергування (X) основного складу на ${monthLabel}?\n\n` +
+            `Уже проставлені наряди на цей місяць не будуть змінені. Заздалегідь внесені відпустки/відрядження/лікарняні буде враховано — таких людей у ці дні алгоритм пропустить.`
+        );
+        if (!proceed) return;
+
+        const stats = computeStats();
+        const load = {};
+        staff.forEach(emp => {
+            load[emp] = { total: stats[emp].duty, thu: stats[emp].thu, sat: stats[emp].sat, sun: stats[emp].sun };
+        });
+
+        let prevEmp = null;
+        let assigned = 0;
+        let skippedNoOne = 0;
+
+        for (let day = 1; day <= totalDays; day++) {
+            const dateStr = getDateString(year, month, day);
+            const dow = new Date(year, month, day).getDay();
+
+            if (!schedule[dateStr]) schedule[dateStr] = { duties: [], mgmt: [], absences: [] };
+            if (!schedule[dateStr].duties) schedule[dateStr].duties = [];
+            if (!schedule[dateStr].mgmt) schedule[dateStr].mgmt = [];
+            if (!schedule[dateStr].absences) schedule[dateStr].absences = [];
+
+            const alreadyHasDuty = schedule[dateStr].duties.some(d => d.type === 'duty');
+            if (alreadyHasDuty) continue; // це вже вручну проставлений наряд — не чіпаємо
+
+            let pool = staff.filter(emp => !isEmployeeUnavailable(dateStr, emp) && emp !== prevEmp);
+            if (pool.length === 0) pool = staff.filter(emp => !isEmployeeUnavailable(dateStr, emp));
+            if (pool.length === 0) { skippedNoOne++; continue; } // усі відсутні цього дня
+
+            let sortKey;
+            if (dow === 4) sortKey = e => [load[e].thu, load[e].total];
+            else if (dow === 6) sortKey = e => [load[e].sat, load[e].total];
+            else if (dow === 0) sortKey = e => [load[e].sun, load[e].total];
+            else sortKey = e => [load[e].total, 0];
+
+            pool.sort((a, b) => {
+                const ka = sortKey(a), kb = sortKey(b);
+                return (ka[0] - kb[0]) || (ka[1] - kb[1]);
+            });
+
+            const chosen = pool[0];
+            schedule[dateStr].duties.push({ emp: chosen, type: 'duty' });
+
+            load[chosen].total++;
+            if (dow === 4) load[chosen].thu++;
+            else if (dow === 6) load[chosen].sat++;
+            else if (dow === 0) load[chosen].sun++;
+
+            prevEmp = chosen;
+            assigned++;
+        }
+
+        let msg = `Готово! Автоматично розподілено ${assigned} чергувань на ${monthLabel}.`;
+        if (skippedNoOne > 0) msg += `\n\n⚠️ ${skippedNoOne} дн. залишились без чергового — усі були відсутні одночасно. Перевірте ці дні вручну.`;
+        msg += `\n\nПерегляньте розклад і за потреби скоригуйте вручну, потім натисніть «Зберегти зміни».`;
+        alert(msg);
+
+        currentDate = targetDate;
         initCalendar();
     }
 
@@ -592,7 +716,7 @@
     }
 
     function saveToCloudAndLocal() {
-        localStorage.setItem('duty_v6', JSON.stringify(schedule));
+        localStorage.setItem('duty_v7', JSON.stringify(schedule));
         const saveBtn = document.querySelector('.btn-save');
         saveBtn.innerText = "Зберігаємо...";
         saveBtn.disabled = true;
