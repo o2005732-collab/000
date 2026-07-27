@@ -277,7 +277,7 @@
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwCz9lLsM92a90950Tcan0KLE12B5Yrf45rdaF2qjSoFegUv9ZKKlGQjNsTqvIIefX7Yw/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6qw_1nyChivx8D5MTgBKKKlNaS0Y9vaizXSkcjfzfaH4stH71CUoEmkNcIQAF9Hzq/exec";
 
     const staff = [
         "Дем'яненко Т.І.", "Цибко В.І.", "Ївженко В.О.", "Щербатюк М.В.",
@@ -597,14 +597,27 @@
         saveBtn.innerText = "Зберігаємо...";
         saveBtn.disabled = true;
 
+        // Важливо: без mode:"no-cors" і з Content-Type: text/plain — це не дає
+        // Google Apps Script CORS-помилки на preflight-запиті, і при цьому
+        // дозволяє нам ПРОЧИТАТИ справжню відповідь скрипта (успіх/помилка),
+        // а не сліпо показувати "успіх" навіть коли запис не відбувся.
         fetch(GOOGLE_SCRIPT_URL, {
             method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(schedule)
         })
-        .then(() => { alert('📊 Календар успішно збережено в хмару!'); })
-        .catch(() => { alert('Збережено локально в браузері.'); })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                alert(`📊 Збережено в хмару! Записів: ${data.rows}.`);
+            } else {
+                alert('⚠️ Google-скрипт відповів помилкою: ' + data.message + '\n\nДані збережено локально в браузері, спробуйте ще раз пізніше.');
+            }
+        })
+        .catch(err => {
+            alert('❌ Не вдалося з’єднатися з Google Таблицею: ' + err.message +
+                  '\n\nПеревірте, що скрипт розгорнутий з доступом "Будь-хто" (Anyone) і що URL актуальний. Дані збережено локально в браузері.');
+        })
         .finally(() => { saveBtn.innerText = "Зберегти зміни"; saveBtn.disabled = false; });
     }
 
