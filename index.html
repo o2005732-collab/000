@@ -16,18 +16,6 @@
             --accent-glow: rgba(79, 70, 229, 0.15);
             --critical-day: #ef4444;
             --success: #10b981;
-            
-            /* Кольори для статусів (Світла тема) */
-            --day-duty-bg: rgba(79, 70, 229, 0.08);
-            --day-duty-border: rgba(79, 70, 229, 0.3);
-            --day-work-bg: rgba(16, 185, 129, 0.08);
-            --day-work-border: rgba(16, 185, 129, 0.3);
-            --day-vacation-bg: rgba(14, 165, 233, 0.08);
-            --day-vacation-border: rgba(14, 165, 233, 0.3);
-            --day-trip-bg: rgba(168, 85, 247, 0.08);
-            --day-trip-border: rgba(168, 85, 247, 0.3);
-            --day-sick-bg: rgba(f5, 158, 11, 0.08);
-            --day-sick-border: rgba(245, 158, 11, 0.3);
         }
 
         * {
@@ -143,21 +131,30 @@
             padding: 0.4rem 0.8rem;
             border-radius: 8px;
             font-size: 0.85rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .brush-badge:hover {
-            border-color: var(--accent-primary);
-            background: rgba(79, 70, 229, 0.04);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
         .brush-badge.active {
-            background: var(--accent-primary);
-            color: #fff;
-            border-color: transparent;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+            border-color: #000 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            transform: translateY(0);
+        }
+
+        .color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
         }
 
         /* КАЛЕНДАР */
@@ -234,22 +231,15 @@
             color: #475569;
         }
 
-        /* Підсвічування критичних днів */
+        /* Підсвічування критичних днів (Чт-Нд числа червоні якщо пусті) */
         .calendar-day.critical-day {
             background: #fffafb;
-            border-color: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.05);
         }
         
         .calendar-day.critical-day .day-number {
             color: var(--critical-day);
         }
-
-        /* Стилі для статусів дня */
-        .day-duty { border-color: var(--day-duty-border); background: var(--day-duty-bg) !important; }
-        .day-work { border-color: var(--day-work-border); background: var(--day-work-bg) !important; }
-        .day-vacation { border-color: var(--day-vacation-border); background: var(--day-vacation-bg) !important; }
-        .day-trip { border-color: var(--day-trip-border); background: var(--day-trip-bg) !important; }
-        .day-sick { border-color: var(--day-sick-border); background: var(--day-sick-bg) !important; }
 
         .employee-select, .type-select {
             width: 100%;
@@ -339,6 +329,9 @@
             font-size: 0.85rem;
             color: #334155;
             padding-left: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .badge {
@@ -416,9 +409,8 @@
         </div>
 
         <div class="sync-banner">
-            <strong>⚙️ Розумний захист активований:</strong><br>
-            • Система автоматично блокує призначення "доба через добу".<br>
-            • Співробітники у відпустці або на лікарняному приховуються зі списків.
+            <strong>🎨 Персональне маркування:</strong><br>
+            Кожен працівник має свій м'який колір. При виборі статусу «Відпустка», «Лікарняний» або «Відрядження» картка робиться напівпрозорою з відповідною текстовою міткою.
         </div>
     </aside>
 </div>
@@ -443,6 +435,23 @@
         "Кулик Д.І."
     ];
 
+    // Унікальна палітра ніжних пастельних кольорів (кожному свій мапінг)
+    const employeeColors = {
+        "Дем'яненко Т.І.": { bg: "#e0f2fe", border: "#bae6fd", dot: "#38bdf8" }, // Ніжно-блакитний
+        "Цибко В.І.":      { bg: "#dcfce7", border: "#bbf7d0", dot: "#4ade80" }, // Ніжно-зелений
+        "Ївженко В.О.":    { bg: "#fef9c3", border: "#fef08a", dot: "#facc15" }, // Пастельно-жовтий
+        "Щербатюк М.В.":   { bg: "#fee2e2", border: "#fecaca", dot: "#f87171" }, // М'яко-червоний
+        "Магера В.В.":     { bg: "#f3e8ff", border: "#e9d5ff", dot: "#c084fc" }, // Ніжно-пурпуровий
+        "Муха М.О.":       { bg: "#ffedd5", border: "#fed7aa", dot: "#fb923c" }, // Пастельно-помаранчевий
+        "Дробіт О.Ю.":     { bg: "#fae8ff", border: "#f5d0fe", dot: "#e879f9" }, // Ніжно-рожевий
+        "Онищенко Р.В.":   { bg: "#e0e7ff", border: "#c7d2fe", dot: "#818cf8" }, // Пастельно-синій
+        "Романов В.М.":    { bg: "#e2e8f0", border: "#cbd5e1", dot: "#94a3b8" }, // Світло-сірий
+        "Магера А.В.":     { bg: "#f0fdf4", border: "#dcfce7", dot: "#22c55e" }, // М'ятний
+        "Мотузенко М.С.":  { bg: "#fff1f2", border: "#ffe4e6", dot: "#fda4af" }, // Рожева пастель
+        "Бондар О.С.":     { bg: "#eff6ff", border: "#dbeafe", dot: "#60a5fa" }, // Королівський м'який
+        "Кулик Д.І.":      { bg: "#f5f5f4", border: "#e7e5e4", dot: "#a8a29e" }  // Кавово-сірий
+    };
+
     const statusTypes = {
         "duty": "Добове чергування",
         "work": "Відпрацювання (Пт/Сб)",
@@ -453,19 +462,25 @@
     
     let currentDate = new Date();
     let schedule = JSON.parse(localStorage.getItem('duty_schedule_v2')) || {};
-    let activeBrushEmployee = ""; // Поточний обраний працівник для швидкого заповнення
+    let activeBrushEmployee = "";
 
     const monthsUA = [
         "Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
         "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"
     ];
 
-    // Ініціалізація кнопок палітри швидкого заповнення
     function initBrushPanel() {
         const container = document.getElementById('brushContainer');
-        container.innerHTML = employees.map(emp => `
-            <button class="brush-badge" data-brush-name="${emp}" onclick="selectBrush('${emp}')">${emp}</button>
-        `).join('');
+        // Безпечно екрануємо лапки для функції onclick, щоб апостроф у прізвищі не ламав HTML
+        container.innerHTML = employees.map(emp => {
+            const colors = employeeColors[emp];
+            return `
+                <button class="brush-badge" data-brush-name="${emp}" onclick="selectBrush(\`${emp}\`)" style="border-color: ${colors.border}; background: #fff;">
+                    <span class="color-dot" style="background: ${colors.dot}"></span>
+                    ${emp}
+                </button>
+            `;
+        }).join('');
     }
 
     function selectBrush(empName) {
@@ -479,21 +494,17 @@
         }
     }
 
-    // Допоміжна функція для отримання дати у форматі YYYY-MM-DD
     function getDateString(year, month, day) {
         return `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     }
 
-    // Перевірка, чи вільний співробітник від заборон (доба через добу, лікарняні/відпустки)
     function getEmployeeValidationStatus(empName, dateStr) {
         const [y, m, d] = dateStr.split('-').map(Number);
         
-        // 1. Перевірка на відпустку / лікарняний / відрядження на ЦЮ САМУ ДАТУ
         if (schedule[dateStr] && schedule[dateStr].emp === empName) {
-            if (["vacation", "trip", "sick"].includes(schedule[dateStr].type)) return "allowed"; // Якщо це його поточний легітимний статус відсутності
+            if (["vacation", "trip", "sick"].includes(schedule[dateStr].type)) return "allowed";
         }
 
-        // 2. Перевірка сусідніх днів (вчора і завтра) на наявність добового чергування
         const yesterdayObj = new Date(y, m - 1, d - 1);
         const tomorrowObj = new Date(y, m - 1, d + 1);
         
@@ -505,11 +516,6 @@
         }
         if (schedule[tomorrowStr] && schedule[tomorrowStr].emp === empName && schedule[tomorrowStr].type === "duty") {
             return "block-consecutive";
-        }
-
-        // 3. Перевірка чи на цей день у нього вже є десь статус непрацездатності (якщо ми викликаємо перевірку з іншого контексту)
-        if (schedule[dateStr] && schedule[dateStr].emp === empName && ["vacation", "trip", "sick"].includes(schedule[dateStr].type)) {
-            return "block-absence";
         }
 
         return "allowed";
@@ -549,11 +555,19 @@
             const dateString = getDateString(year, month, day);
             const savedDayData = schedule[dateString] || { emp: "", type: "" };
 
-            if(savedDayData.type) {
-                dayCell.classList.add(`day-${savedDayData.type}`);
+            // ДИНАМІЧНЕ ФАРБУВАННЯ В КОЛІР ПРАЦІВНИКА
+            if(savedDayData.emp && employeeColors[savedDayData.emp]) {
+                const colors = employeeColors[savedDayData.emp];
+                dayCell.style.backgroundColor = colors.bg;
+                dayCell.style.borderColor = colors.border;
+                
+                // Якщо статус відсутній на роботі, робимо клітинку прозорішою для індикації
+                if(["vacation", "trip", "sick"].includes(savedDayData.type)) {
+                    dayCell.style.opacity = "0.65";
+                    dayCell.style.borderStyle = "dashed";
+                }
             }
 
-            // Додаємо подію кліку по клітинці для режиму "Швидкого пензлика"
             dayCell.addEventListener('click', (e) => {
                 if (activeBrushEmployee && e.target.tagName !== 'SELECT') {
                     const validation = getEmployeeValidationStatus(activeBrushEmployee, dateString);
@@ -569,14 +583,9 @@
                 }
             });
             
-            // Фільтруємо список працівників для кожного конкретного дня на базі правил захисту
             const availableEmployees = employees.filter(emp => {
-                // Завжди показуємо того, хто вже обраний
                 if (savedDayData.emp === emp) return true;
-                
-                // Перевіряємо правила
-                const check = getEmployeeValidationStatus(emp, dateString);
-                return check === "allowed";
+                return getEmployeeValidationStatus(emp, dateString) === "allowed";
             });
 
             dayCell.innerHTML = `
@@ -587,7 +596,7 @@
                     <option value="">— Вільний —</option>
                     ${employees.map(emp => {
                         const isAvailable = availableEmployees.includes(emp);
-                        if (!isAvailable && savedDayData.emp !== emp) return ''; // Приховуємо недоступних
+                        if (!isAvailable && savedDayData.emp !== emp) return '';
                         return `<option value="${emp}" ${savedDayData.emp === emp ? 'selected' : ''}>${emp}</option>`;
                     }).join('')}
                 </select>
@@ -674,8 +683,8 @@
         const statsList = document.getElementById('statsList');
         statsList.innerHTML = sortedEmployees.map(emp => {
             const totalDuties = stats[emp].duty;
+            const colors = employeeColors[emp] || { dot: "#64748b" };
             
-            // Логіка визначення кольору індикатора навантаження
             let loadClass = "load-low";
             if (totalDuties >= 4 && totalDuties <= 6) loadClass = "load-medium";
             if (totalDuties >= 7) loadClass = "load-high";
@@ -683,7 +692,10 @@
             return `
                 <div class="stat-card">
                     <div class="load-indicator ${loadClass}"></div>
-                    <div class="stat-name" title="${emp}">${emp}</div>
+                    <div class="stat-name" title="${emp}">
+                        <span class="color-dot" style="background: ${colors.dot}"></span>
+                        ${emp}
+                    </div>
                     <div class="badge badge-total">${stats[emp].duty}</div>
                     <div class="badge badge-critical">${stats[emp].critical}</div>
                     <div class="badge badge-work">${stats[emp].work}</div>
@@ -714,7 +726,7 @@
             body: JSON.stringify(schedule)
         })
         .then(() => {
-            alert('📊 Чудово! Графік оновлено, захист перевірив дані, усе збережено в Google Таблицю!');
+            alert('📊 Чудово! Графік оновлено, персональні кольори збережено в хмару!');
         })
         .catch(err => {
             console.error("Помилка:", err);
@@ -727,9 +739,8 @@
         });
     }
 
-    // Стартові виклики
     initBrushPanel();
-    selectBrush(''); // За замовчуванням пензлик вимкнений
+    selectBrush(''); 
     initCalendar();
 </script>
 </body>
