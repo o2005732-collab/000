@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DutyControl Pro — Преміум Календар</title>
+    <title>DutyControl Pro — Мультикалендар</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -34,7 +34,7 @@
         }
 
         .container {
-            max-width: 1750px;
+            max-width: 1850px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr 500px;
@@ -42,9 +42,7 @@
         }
 
         @media (max-width: 1400px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
+            .container { grid-template-columns: 1fr; }
         }
 
         header {
@@ -78,7 +76,7 @@
         .btn:hover { border-color: var(--accent-primary); background: rgba(79, 70, 229, 0.04); }
         .current-month-title { font-size: 1.15rem; font-weight: 700; min-width: 160px; text-align: center; color: #1e293b; }
 
-        /* ПАНЕЛЬ ШВИДКОГО ЗАПОВНЕННЯ */
+        /* ПАНЕЛЬ ШВИДКОГО ПЕНЗЛИКА */
         .quick-fill-panel {
             grid-column: 1 / -1;
             background: var(--panel-bg);
@@ -92,7 +90,7 @@
             gap: 1rem;
             flex-wrap: wrap;
         }
-        .quick-fill-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+        .quick-fill-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
 
         .brush-badge {
             background: #fff;
@@ -107,7 +105,6 @@
             align-items: center;
             gap: 6px;
         }
-        .brush-badge:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .brush-badge.active { border-color: #000 !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); }
         .color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 
@@ -130,46 +127,26 @@
         }
         .weekday-label { color: var(--text-muted); font-size: 0.8rem; font-weight: 700; padding: 0.5rem; text-transform: uppercase; }
 
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
 
         .calendar-day {
             background: #ffffff;
             border: 1px solid rgba(15, 23, 42, 0.06);
-            border-radius: 14px;
-            min-height: 145px;
+            border-radius: 16px;
+            min-height: 220px;
             padding: 0.65rem;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-        .calendar-day:not(.empty) { cursor: pointer; }
-        .calendar-day:not(.empty):hover { transform: translateY(-2px); box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.08); }
         .calendar-day.empty { background: transparent; border: none; pointer-events: none; }
 
-        .day-header { display: flex; justify-content: space-between; align-items: center; }
-        .day-number { font-size: 1rem; font-weight: 700; color: #475569; }
+        .day-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
+        .day-number { font-size: 1.05rem; font-weight: 700; color: #475569; }
 
-        .calendar-day.critical-day { background: #fffafb; border-color: rgba(239, 68, 68, 0.05); }
+        .calendar-day.critical-day { background: #fffafb; }
         .calendar-day.critical-day .day-number { color: var(--critical-day); }
-
-        /* Текстові плашки для тривалих статусів */
-        .status-ribbon {
-            width: calc(100% + 1.5rem);
-            margin-left: -0.75rem;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            text-align: center;
-            letter-spacing: 0.5px;
-            margin-top: 2px;
-        }
-        .ribbon-vacation { background: #38bdf8; color: #fff; }
-        .ribbon-trip { background: #c084fc; color: #fff; }
-        .ribbon-sick { background: #fb923c; color: #fff; }
 
         .employee-select, .type-select {
             width: 100%;
@@ -179,10 +156,78 @@
             padding: 0.35rem;
             border-radius: 6px;
             font-size: 0.78rem;
-            font-weight: 500;
+            font-weight: 600;
             outline: none;
-            z-index: 2;
         }
+
+        /* ЗОНА ВІДСУТНОСТІ (МУЛЬТИ-СПИСОК) */
+        .absence-section {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-top: 6px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .absence-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+        }
+
+        .absence-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 2px 4px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+        }
+
+        .absence-badge {
+            flex: 1;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        
+        /* Кольори бейджів відсутності */
+        .ab-vacation { background: #e0f2fe; color: #0369a1; border-left: 3px solid #38bdf8; }
+        .ab-trip { background: #f3e8ff; color: #6b21a8; border-left: 3px solid #c084fc; }
+        .ab-sick { background: #ffedd5; color: #9a3412; border-left: 3px solid #fb923c; }
+
+        .btn-delete-absence {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            padding: 0 4px;
+        }
+
+        .btn-add-absence {
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            color: #475569;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .btn-add-absence:hover { background: #e2e8f0; color: #000; }
 
         /* АНАЛІТИКА */
         .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
@@ -195,8 +240,7 @@
             box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.05);
         }
         .stats-panel h2 { font-size: 1.15rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; }
-        .stats-subheading { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent-primary); letter-spacing: 0.5px; margin: 1rem 0 0.5rem 0; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 4px; }
-
+        .stats-subheading { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent-primary); margin: 1rem 0 0.5rem 0; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 4px; }
         .stats-list { display: flex; flex-direction: column; gap: 0.5rem; }
         
         .stat-card {
@@ -210,7 +254,6 @@
             align-items: center;
             position: relative;
         }
-
         .load-indicator { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); width: 4px; height: 18px; border-radius: 4px; }
         .load-low { background: #10b981; }
         .load-medium { background: #f59e0b; }
@@ -223,15 +266,6 @@
         .badge-critical { background: rgba(239, 68, 68, 0.06); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); }
         .badge-work { background: rgba(16, 185, 129, 0.06); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.15); }
         .badge-other { background: rgba(100, 116, 139, 0.06); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.15); }
-
-        .sync-banner {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
-            border: 1px solid rgba(79, 70, 229, 0.15);
-            border-radius: 16px;
-            padding: 1rem;
-            font-size: 0.85rem;
-            color: #475569;
-        }
     </style>
 </head>
 <body>
@@ -239,21 +273,19 @@
 <div class="container">
     <header>
         <div class="logo-area">
-            <h1>DutyControl <span>Pro v3</span></h1>
+            <h1>DutyControl <span>MultiPro</span></h1>
         </div>
         <div class="month-selector">
             <button class="btn" onclick="changeMonth(-1)">◀</button>
             <div class="current-month-title" id="monthTitle">Липень 2026</div>
             <button class="btn" onclick="changeMonth(1)">▶</button>
         </div>
-        <div>
-            <button class="btn" style="border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.04);" onclick="saveToCloudAndLocal()">Зберегти зміни</button>
-        </div>
+        <button class="btn" style="border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.04);" onclick="saveToCloudAndLocal()">Зберегти зміни</button>
     </header>
 
     <!-- ПАНЕЛЬ ШВИДКОГО ПЕНЗЛИКА -->
     <div class="quick-fill-panel">
-        <span class="quick-fill-title">Brush / Пензлик:</span>
+        <span class="quick-fill-title">🖌️ Наряди (Пензлик):</span>
         <button class="brush-badge" id="btnBrushNone" onclick="selectBrush('')" style="font-weight: bold; border-color: #ef4444; color: #ef4444;">Вимкнути пензлик</button>
         <div id="brushContainer" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
     </div>
@@ -288,31 +320,22 @@
             <div class="stats-subheading">Відповідальні від керівництва</div>
             <div class="stats-list" id="statsListManagement"></div>
         </div>
-
-        <div class="sync-banner">
-            • <b>Колір</b> клітинки відповідає закріпленому кольору працівника.<br>
-            • <b>Стрічка тексту</b> з'являється у дні відпусток чи лікарняних.
-        </div>
     </aside>
 </div>
 
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhu3m5MazbR5CY6KkgqCRlpxTaVih_RIaystRhpTOIRPbsqJQk8cw6ARNiSub3T2xB/exec";
 
-    // Розділені списки, як на паперовому бланку
     const staff = [
         "Дем'яненко Т.І.", "Цибко В.І.", "Ївженко В.О.", "Щербатюк М.В.",
         "Магера В.В.", "Муха М.О.", "Дробіт О.Ю.", "Онищенко Р.В.",
         "Романов В.М.", "Магера А.В.", "Мотузенко М.С.", "Бондар О.С.", "Кулик Д.І."
     ];
-
     const management = [
         "Приймак А.І.", "Шахляров Т.Е.", "Хворостян В.В."
     ];
-
     const allEmployees = [...staff, ...management];
 
-    // Кольорова палітра ніжних відтінків
     const employeeColors = {
         "Дем'яненко Т.І.": { bg: "#e0f2fe", border: "#bae6fd", dot: "#38bdf8" },
         "Цибко В.І.":      { bg: "#dcfce7", border: "#bbf7d0", dot: "#4ade80" },
@@ -328,20 +351,13 @@
         "Бондар О.С.":     { bg: "#eff6ff", border: "#dbeafe", dot: "#60a5fa" },
         "Кулик Д.І.":      { bg: "#f5f5f4", border: "#e7e5e4", dot: "#a8a29e" },
         "Приймак А.І.":    { bg: "#f8fafc", border: "#e2e8f0", dot: "#64748b" },
-        "Шахляров Т.E.":   { bg: "#f8fafc", border: "#e2e8f0", dot: "#64748b" },
+        "Шахляров Т.Е.":   { bg: "#f8fafc", border: "#e2e8f0", dot: "#64748b" },
         "Хворостян В.В.":  { bg: "#f8fafc", border: "#e2e8f0", dot: "#64748b" }
     };
 
-    const statusTypes = {
-        "duty": "Добове чергування",
-        "work": "Відпрацювання (Пт/Сб)",
-        "vacation": "Відпустка",
-        "trip": "Відрядження",
-        "sick": "Лікарняний"
-    };
-    
     let currentDate = new Date();
-    let schedule = JSON.parse(localStorage.getItem('duty_schedule_v2')) || {};
+    // Нова чиста структура: { "YYYY-MM-DD": { dutyEmp: "", dutyType: "", absences: [{emp: "", type: ""}] } }
+    let schedule = JSON.parse(localStorage.getItem('duty_multi_schedule')) || {};
     let activeBrushEmployee = "";
 
     const monthsUA = [
@@ -353,49 +369,24 @@
         const container = document.getElementById('brushContainer');
         container.innerHTML = allEmployees.map(emp => {
             const colors = employeeColors[emp] || { border: "#e2e8f0", dot: "#64748b" };
-            return `
-                <button class="brush-badge" data-brush-name="${emp}" onclick="selectBrush(\`${emp}\`)" style="border-color: ${colors.border}; background: #fff;">
-                    <span class="color-dot" style="background: ${colors.dot}"></span>
-                    ${emp}
-                </button>
-            `;
+            return `<button class="brush-badge" data-brush-name="${emp}" onclick="selectBrush(\`${emp}\`)" style="border-color: ${colors.border}; background: #fff;"><span class="color-dot" style="background: ${colors.dot}"></span>${emp}</button>`;
         }).join('');
     }
 
     function selectBrush(empName) {
         activeBrushEmployee = empName;
         document.querySelectorAll('.brush-badge').forEach(btn => btn.classList.remove('active'));
-        if(empName) {
-            document.querySelector(`[data-brush-name="${empName}"]`).classList.add('active');
-        } else {
-            document.getElementById('btnBrushNone').classList.add('active');
-        }
+        if(empName) document.querySelector(`[data-brush-name="${empName}"]`).classList.add('active');
+        else document.getElementById('btnBrushNone').classList.add('active');
     }
 
     function getDateString(year, month, day) {
         return `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     }
 
-    function getEmployeeValidationStatus(empName, dateStr) {
-        const [y, m, d] = dateStr.split('-').map(Number);
-        if (schedule[dateStr] && schedule[dateStr].emp === empName) {
-            if (["vacation", "trip", "sick"].includes(schedule[dateStr].type)) return "allowed";
-        }
-        const yesterdayObj = new Date(y, m - 1, d - 1);
-        const tomorrowObj = new Date(y, m - 1, d + 1);
-        const yesterdayStr = getDateString(yesterdayObj.getFullYear(), yesterdayObj.getMonth(), yesterdayObj.getDate());
-        const tomorrowStr = getDateString(tomorrowObj.getFullYear(), tomorrowObj.getMonth(), tomorrowObj.getDate());
-
-        if (schedule[yesterdayStr] && schedule[yesterdayStr][empName] === "duty") return "block-consecutive";
-        if (schedule[tomorrowStr] && schedule[tomorrowStr][empName] === "duty") return "block-consecutive";
-
-        return "allowed";
-    }
-
     function initCalendar() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
-        
         document.getElementById('monthTitle').innerText = `${monthsUA[month]} ${year}`;
         
         const firstDayIndex = new Date(year, month, 1).getDay();
@@ -406,76 +397,98 @@
         grid.innerHTML = '';
 
         for(let i = 0; i < adjustedFirstDay; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.classList.add('calendar-day', 'empty');
-            grid.appendChild(emptyCell);
+            grid.appendChild(Object.assign(document.createElement('div'), {className: 'calendar-day empty'}));
         }
 
         for(let day = 1; day <= totalDays; day++) {
             const dayCell = document.createElement('div');
-            dayCell.classList.add('calendar-day');
-            if([4, 5, 6, 0].includes(dateObj = new Date(year, month, day).getDay())) dayCell.classList.add('critical-day');
+            dayCell.className = 'calendar-day';
+            if([4, 5, 6, 0].includes(new Date(year, month, day).getDay())) dayCell.classList.add('critical-day');
 
-            const dateString = getDateString(year, month, day);
-            const savedDayData = schedule[dateString] || { emp: "", type: "" };
+            const dateStr = getDateString(year, month, day);
+            const dayData = schedule[dateStr] || { dutyEmp: "", dutyType: "", absences: [] };
 
-            let ribbonHtml = "";
-
-            if(savedDayData.emp && employeeColors[savedDayData.emp]) {
-                const colors = employeeColors[savedDayData.emp];
-                dayCell.style.backgroundColor = colors.bg;
-                dayCell.style.borderColor = colors.border;
-                
-                // Якщо є особливий статус відсутності — додаємо велику текстову стрічку вниз під вікно списку
-                if(savedDayData.type === "vacation") ribbonHtml = `<div class="status-ribbon ribbon-vacation">🏖️ Відпустка</div>`;
-                if(savedDayData.type === "trip") ribbonHtml = `<div class="status-ribbon ribbon-trip">💼 Відрядження</div>`;
-                if(savedDayData.type === "sick") ribbonHtml = `<div class="status-ribbon ribbon-sick">🤒 Лікарняний</div>`;
-                if(savedDayData.type === "work") ribbonHtml = `<div class="status-ribbon" style="background:#10b981; color:#fff;">⚡ Відпрацювання</div>`;
+            // Фарбуємо в колір чергового
+            if(dayData.dutyEmp && employeeColors[dayData.dutyEmp]) {
+                dayCell.style.backgroundColor = employeeColors[dayData.dutyEmp].bg;
+                dayCell.style.borderColor = employeeColors[dayData.dutyEmp].border;
             }
 
+            // Швидкий пензлик наряду
             dayCell.addEventListener('click', (e) => {
-                if (activeBrushEmployee && e.target.tagName !== 'SELECT') {
-                    if (!schedule[dateString]) schedule[dateString] = { emp: "", type: "" };
-                    schedule[dateString].emp = activeBrushEmployee;
-                    schedule[dateString].type = "duty";
+                if (activeBrushEmployee && !['SELECT', 'BUTTON', 'OPTION'].includes(e.target.tagName)) {
+                    if (!schedule[dateStr]) schedule[dateStr] = { dutyEmp: "", dutyType: "", absences: [] };
+                    schedule[dateStr].dutyEmp = activeBrushEmployee;
+                    schedule[dateStr].dutyType = "duty";
                     initCalendar();
                 }
             });
-            
+
+            // Рендер мульти-списку відсутностей
+            let absenceListHtml = dayData.absences.map((abs, index) => {
+                let statusClass = abs.type === 'vacation' ? 'ab-vacation' : (abs.type === 'trip' ? 'ab-trip' : 'ab-sick');
+                let statusText = abs.type === 'vacation' ? 'ВІДП' : (abs.type === 'trip' ? 'ВІДР' : 'ЛІК');
+                return `
+                    <div class="absence-row">
+                        <div class="absence-badge ${statusClass}"><b>${statusText}</b>: ${abs.emp.split(' ')[0]}</div>
+                        <button class="btn-delete-absence" onclick="deleteAbsence('${dateStr}', ${index})">×</button>
+                    </div>
+                `;
+            }).join('');
+
             dayCell.innerHTML = `
                 <div class="day-header"><div class="day-number">${day}</div></div>
-                <select class="employee-select" data-date="${dateString}" onchange="updateDayEmployee(this)">
-                    <option value="">— Вільний —</option>
-                    ${allEmployees.map(emp => `<option value="${emp}" ${savedDayData.emp === emp ? 'selected' : ''}>${emp}</option>`).join('')}
+                <select class="employee-select" onchange="updateDutyEmployee('${dateStr}', this.value)">
+                    <option value="">— Черговий (X) —</option>
+                    ${allEmployees.map(emp => `<option value="${emp}" ${dayData.dutyEmp === emp ? 'selected' : ''}>${emp}</option>`).join('')}
                 </select>
-                <select class="type-select" data-date="${dateString}" onchange="updateDayType(this)" ${savedDayData.emp ? '' : 'disabled'}>
-                    <option value="">— Статус дня —</option>
-                    ${Object.keys(statusTypes).map(key => `<option value="${key}" ${savedDayData.type === key ? 'selected' : ''}>${statusTypes[key]}</option>`).join('')}
+                <select class="type-select" style="font-size:0.7rem;" onchange="updateDutyType('${dateStr}', this.value)" ${dayData.dutyEmp ? '' : 'disabled'}>
+                    <option value="duty" ${dayData.dutyType === 'duty' ? 'selected' : ''}>Добове чергування (X)</option>
+                    <option value="work" ${dayData.dutyType === 'work' ? 'selected' : ''}>Відпрацювання (В)</option>
                 </select>
-                ${ribbonHtml}
+                
+                <div class="absence-section">
+                    <div class="absence-title">Відпустки / Лікарняні:</div>
+                    ${absenceListHtml}
+                    <button class="btn-add-absence" onclick="addAbsenceRow('${dateStr}')">+ Додати відсутнього</button>
+                </div>
             `;
             grid.appendChild(dayCell);
         }
         calculateStats();
     }
 
-    function updateDayEmployee(selectElement) {
-        const date = selectElement.getAttribute('data-date');
-        const empName = selectElement.value;
-        if (empName) {
-            if (!schedule[date]) schedule[date] = { emp: "", type: "" };
-            schedule[date].emp = empName;
-            if (!schedule[date].type) schedule[date].type = "duty"; 
-        } else {
-            delete schedule[date];
-        }
+    function updateDutyEmployee(dateStr, val) {
+        if(!schedule[dateStr]) schedule[dateStr] = { dutyEmp: "", dutyType: "", absences: [] };
+        schedule[dateStr].dutyEmp = val;
+        if(val && !schedule[dateStr].dutyType) schedule[dateStr].dutyType = "duty";
+        if(!val && schedule[dateStr].absences.length === 0) delete schedule[dateStr];
         initCalendar();
     }
 
-    function updateDayType(selectElement) {
-        const date = selectElement.getAttribute('data-date');
-        if (schedule[date]) schedule[date].type = selectElement.value || "duty";
+    function updateDutyType(dateStr, val) {
+        if(schedule[dateStr]) schedule[dateStr].dutyType = val;
         initCalendar();
+    }
+
+    function addAbsenceRow(dateStr) {
+        let emp = prompt(`Введіть прізвище працівника зі списку:\n${allEmployees.join(', ')}`);
+        if(!emp || !allEmployees.includes(emp)) { alert("Неправильне прізвище!"); return; }
+        let type = prompt("Введіть тип статусу:\n1 - Відпустка\n2 - Відрядження\n3 - Лікарняний");
+        let typeStr = type === '1' ? 'vacation' : (type === '2' ? 'trip' : (type === '3' ? 'sick' : ''));
+        if(!typeStr) { alert("Неправильний статус!"); return; }
+
+        if(!schedule[dateStr]) schedule[dateStr] = { dutyEmp: "", dutyType: "", absences: [] };
+        schedule[dateStr].absences.push({ emp: emp, type: typeStr });
+        initCalendar();
+    }
+
+    function deleteAbsence(dateStr, index) {
+        if(schedule[dateStr]) {
+            schedule[dateStr].absences.splice(index, 1);
+            if(!schedule[dateStr].dutyEmp && schedule[dateStr].absences.length === 0) delete schedule[dateStr];
+            initCalendar();
+        }
     }
 
     function calculateStats() {
@@ -484,33 +497,27 @@
 
         Object.keys(schedule).forEach(dateStr => {
             const dayData = schedule[dateStr];
-            const empName = dayData.emp;
-            const type = dayData.type;
-
-            if(stats[empName]) {
-                if (type === "duty") {
-                    stats[empName].duty += 1;
-                    const [y, m, d] = dateStr.split('-').map(Number);
-                    if([4, 5, 6, 0].includes(new Date(y, m - 1, d).getDay())) stats[empName].critical += 1;
-                } else if (type === "work") stats[empName].work += 1;
-                else if (["vacation", "trip", "sick"].includes(type)) stats[empName].other += 1;
+            // Статистика нарядів
+            if(dayData.dutyEmp && stats[dayData.dutyEmp]) {
+                if(dayData.dutyType === 'duty') {
+                    stats[dayData.dutyEmp].duty++;
+                    let [y,m,d] = dateStr.split('-').map(Number);
+                    if([4,5,6,0].includes(new Date(y,m-1,d).getDay())) stats[dayData.dutyEmp].critical++;
+                } else if(dayData.dutyType === 'work') stats[dayData.dutyEmp].work++;
             }
+            // Статистика відпусток/лікарняних
+            dayData.absences.forEach(abs => {
+                if(stats[abs.emp]) stats[abs.emp].other++;
+            });
         });
 
-        function htmlForGroup(groupArray) {
-            return groupArray.map(emp => {
-                const colors = employeeColors[emp] || { dot: "#64748b" };
-                let loadClass = "load-low";
-                if (stats[emp].duty >= 4 && stats[emp].duty <= 6) loadClass = "load-medium";
-                if (stats[emp].duty >= 7) loadClass = "load-high";
-
+        function renderGroup(group) {
+            return group.map(emp => {
+                let loadClass = stats[emp].duty >= 7 ? 'load-high' : (stats[emp].duty >= 4 ? 'load-medium' : 'load-low');
                 return `
                     <div class="stat-card">
                         <div class="load-indicator ${loadClass}"></div>
-                        <div class="stat-name">
-                            <span class="color-dot" style="background: ${colors.dot}"></span>
-                            ${emp}
-                        </div>
+                        <div class="stat-name"><span class="color-dot" style="background:${(employeeColors[emp] || {}).dot || '#64748b'}"></span>${emp}</div>
                         <div class="badge badge-total">${stats[emp].duty}</div>
                         <div class="badge badge-critical">${stats[emp].critical}</div>
                         <div class="badge badge-work">${stats[emp].work}</div>
@@ -519,9 +526,8 @@
                 `;
             }).join('');
         }
-
-        document.getElementById('statsListStaff').innerHTML = htmlForGroup(staff);
-        document.getElementById('statsListManagement').innerHTML = htmlForGroup(management);
+        document.getElementById('statsListStaff').innerHTML = renderGroup(staff);
+        document.getElementById('statsListManagement').innerHTML = renderGroup(management);
     }
 
     function changeMonth(direction) {
@@ -530,24 +536,18 @@
     }
 
     function saveToCloudAndLocal() {
-        localStorage.setItem('duty_schedule_v2', JSON.stringify(schedule));
+        localStorage.setItem('duty_multi_schedule', JSON.stringify(schedule));
         const saveBtn = document.querySelector('.btn[style*="var(--success)"]');
         saveBtn.innerText = "Зберігаємо...";
         saveBtn.disabled = true;
-
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors", 
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(schedule)
-        })
-        .then(() => { alert('📊 Комбінований графік успішно синхронізовано з Google!'); })
+        fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(schedule) })
+        .then(() => { alert('📊 Усі чергування та списки відпусток успішно збережено!'); })
         .catch(() => { alert('Збережено локально.'); })
         .finally(() => { saveBtn.innerText = "Зберегти зміни"; saveBtn.disabled = false; });
     }
 
     initBrushPanel();
-    selectBrush(''); 
+    selectBrush('');
     initCalendar();
 </script>
 </body>
