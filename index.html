@@ -187,7 +187,7 @@
 
         .stats-legend-header {
             display: grid;
-            grid-template-columns: 130px repeat(7, 1fr);
+            grid-template-columns: 130px repeat(8, 1fr);
             gap: 0.35rem;
             padding-bottom: 0.4rem;
             color: var(--text-muted);
@@ -208,13 +208,14 @@
             flex-direction: column;
             gap: 0.35rem;
         }
-        .stat-top { display: grid; grid-template-columns: 130px repeat(7, 1fr); gap: 0.35rem; align-items: center; }
+        .stat-top { display: grid; grid-template-columns: 130px repeat(8, 1fr); gap: 0.35rem; align-items: center; }
         .stat-name { font-weight: 700; font-size: 0.76rem; color: #334155; display: flex; align-items: center; gap: 6px; }
         .stat-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
         .badge { padding: 0.22rem 0.1rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700; text-align: center; }
 
         .badge-total { background: rgba(79, 70, 229, 0.06); color: #4f46e5; border: 1px solid rgba(79, 70, 229, 0.15); }
         .badge-thu { background: rgba(5, 150, 105, 0.07); color: var(--good-day); border: 1px solid rgba(5, 150, 105, 0.18); }
+        .badge-fri { background: rgba(37, 99, 235, 0.07); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.18); }
         .badge-weekend { background: rgba(239, 68, 68, 0.06); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.15); }
         .badge-work { background: rgba(16, 185, 129, 0.06); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.15); }
         .badge-other { background: rgba(100, 116, 139, 0.06); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.15); }
@@ -323,6 +324,7 @@
                 <span>Працівник</span>
                 <span>Черг.</span>
                 <span>Чт</span>
+                <span>Пт</span>
                 <span>Сб</span>
                 <span>Нд</span>
                 <span>Відпр.</span>
@@ -345,7 +347,7 @@
                 <br><br>
                 Кулик Д.І. на підхваті, тому кнопка «Заповнити наступний місяць» його ніколи не призначає автоматично — тільки якщо додати вручну через випадаючий список у клітинці конкретного дня.
                 <br><br>
-                Автозаповнення також стежить, щоб одна людина не заступала занадто часто: між двома чергуваннями — щонайменше 6 днів, не більше 3 нарядів на місяць загалом, і не більше 1 вихідного (Сб/Нд) на місяць — тобто людина втрачає щонайбільше один вихідний. Якщо вільних людей обмаль, правила послаблюються по черзі (спершу загальний ліміт, потім проміжок, вихідний — найостанніше), аби жоден день не лишився зовсім без чергового.
+                Автозаповнення тепер розрізняє чотири "особливі" категорії дня — четвер, пʼятниця, і субота+неділя разом (як вихідний). Кожна людина отримує максимум по одному разу в кожній категорії за місяць — тому той самий чоловік більше не отримає два четверги чи дві пʼятниці за один місяць. Додатково: між будь-якими двома нарядами — щонайменше 6 днів, і не більше 3 нарядів на місяць сумарно. Якщо через ці правила вільних кандидатів на день не лишається, вони послаблюються по черзі — від найменш важливого до найважливішого — щоб жоден день не лишився зовсім без чергового.
             </div>
         </div>
     </aside>
@@ -377,6 +379,11 @@
     // тому одна людина за місяць може чергувати у вихідний максимум стільки
     // разів (Сб + Нд разом).
     const AUTOFILL_MAX_WEEKEND_PER_MONTH = 1;
+    // Так само окремо для четверга і пʼятниці — щоб та сама людина не
+    // отримувала "свій" день тижня двічі за місяць (саме це й ламало
+    // розподіл раніше: четвер/пʼятниця не мали власного ліміту).
+    const AUTOFILL_MAX_THU_PER_MONTH = 1;
+    const AUTOFILL_MAX_FRI_PER_MONTH = 1;
     // Єдиний список — саме за індексом у ньому кожному працівнику присвоюється
     // сталий колір (golden-angle розподіл відтінків, тому кольори завжди
     // виглядають різними й приглушеними, скільки б людей не було).
@@ -628,7 +635,7 @@
     // навантаження, а не тільки поточний місяць).
     function computeStats() {
         const stats = {};
-        allEmployees.forEach(emp => { stats[emp] = { duty: 0, thu: 0, sat: 0, sun: 0, work: 0, other: 0 }; });
+        allEmployees.forEach(emp => { stats[emp] = { duty: 0, thu: 0, fri: 0, sat: 0, sun: 0, work: 0, other: 0 }; });
 
         Object.keys(schedule).forEach(dateStr => {
             const dayData = schedule[dateStr];
@@ -640,6 +647,7 @@
                 if (item.type === 'duty') {
                     stats[item.emp].duty++;
                     if (dow === 4) stats[item.emp].thu++;
+                    else if (dow === 5) stats[item.emp].fri++;
                     else if (dow === 6) stats[item.emp].sat++;
                     else if (dow === 0) stats[item.emp].sun++;
                 } else if (item.type === 'work') {
@@ -652,6 +660,7 @@
                 if (item.type === 'duty') {
                     stats[item.emp].duty++;
                     if (dow === 4) stats[item.emp].thu++;
+                    else if (dow === 5) stats[item.emp].fri++;
                     else if (dow === 6) stats[item.emp].sat++;
                     else if (dow === 0) stats[item.emp].sun++;
                 } else {
@@ -695,6 +704,7 @@
                         <div class="stat-name"><span class="stat-dot" style="background:${c.border};"></span>${emp}</div>
                         <div class="badge badge-total">${s.duty}</div>
                         <div class="badge badge-thu">${s.thu}</div>
+                        <div class="badge badge-fri">${s.fri}</div>
                         <div class="badge badge-weekend">${s.sat}</div>
                         <div class="badge badge-weekend">${s.sun}</div>
                         <div class="badge badge-work">${s.work}</div>
@@ -731,15 +741,25 @@
     }
 
     // Автоматичний розподіл добових чергувань (X) основного складу на
-    // наступний місяць. Враховує:
-    //  - навантаження, нормалізоване на стаж (ФІКС 1) — окремо по
-    //    четвергах/суботах/неділях і загалом;
-    //  - у пʼятницю й суботу пул кандидатів спершу звужується до водіїв,
-    //    з fallback на всіх, якщо жоден водій не вільний (ФІКС 2);
-    //  - вже заздалегідь проставлені відпустки/відрядження/лікарняні —
-    //    таких людей у ці дні пропускає;
-    //  - вже вручну проставлені наряди — не перезаписує;
-    //  - намагається не ставити одну й ту саму людину два дні поспіль.
+    // наступний місяць. Логіка враховує (у порядку пріоритету):
+    //  1. хто вже відсутній/зайнятий цього дня — виключається одразу;
+    //  2. пʼятниця/субота — спершу тільки водії 🚗 (fallback на всіх, якщо
+    //     жоден водій не вільний);
+    //  3. четвер, пʼятниця і субота+неділя — це ОКРЕМІ "категорії" дня.
+    //     Кожна людина отримує максимум 1 четвер, 1 пʼятницю і 1 вихідний
+    //     (Сб або Нд) за місяць. Це найважливіше правило — саме його
+    //     бракувало раніше, тому одна й та сама людина могла отримати
+    //     четвер або пʼятницю двічі за місяць;
+    //  4. загальний ліміт — не частіше ніж раз на AUTOFILL_MIN_GAP_DAYS днів
+    //     і не більше AUTOFILL_MAX_PER_MONTH нарядів на місяць сумарно
+    //     (працює як третій, страхувальний шар — на звичайні будні);
+    //  5. серед тих, хто пройшов усі фільтри — обирається людина з
+    //     найменшим навантаженням на місяць стажу для ЦІЄЇ категорії дня
+    //     (рахунок — за всю історію, не тільки поточний місяць), щоб
+    //     новачки й ветерани порівнювались справедливо.
+    // Якщо на якомусь кроці пул кандидатів спорожнів — крок послаблюється
+    // (спочатку 4, потім 3, і лише в останню чергу — зовсім без обмежень),
+    // щоб жоден день не лишився без чергового.
     function autoFillNextMonth() {
         const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
         const year = targetDate.getFullYear();
@@ -749,8 +769,8 @@
 
         const proceed = confirm(
             `Автоматично розподілити добові чергування (X) основного складу на ${monthLabel}?\n\n` +
-            `Навантаження буде вирівняно з урахуванням стажу кожного (нарядів/місяць), а не сирої кількості. Кожна людина заступає не частіше ніж раз на ${AUTOFILL_MIN_GAP_DAYS} днів, не більше ${AUTOFILL_MAX_PER_MONTH} разів за місяць загалом і не більше ${AUTOFILL_MAX_WEEKEND_PER_MONTH} разів у вихідні (Сб/Нд) за місяць. У пʼятницю й суботу пріоритет — водіям 🚗 (якщо жоден водій не вільний, візьме будь-кого іншого). Кулик Д.І. в автоматичний розподіл не потрапляє (на підхваті) — ставити його можна тільки вручну. ` +
-            `Уже проставлені наряди на цей місяць не будуть змінені. Заздалегідь внесені відпустки/відрядження/лікарняні буде враховано — таких людей у ці дні алгоритм пропустить.`
+            `Кожна людина отримає максимум 1 четвер, 1 пʼятницю і 1 вихідний (Сб/Нд) за місяць, максимум ${AUTOFILL_MAX_PER_MONTH} нарядів загалом, і не частіше ніж раз на ${AUTOFILL_MIN_GAP_DAYS} днів. Навантаження рахується з урахуванням стажу (нарядів/місяць), а не сирої кількості. У пʼятницю й суботу пріоритет — водіям 🚗. Кулик Д.І. в автоматичний розподіл не потрапляє (на підхваті) — тільки вручну. ` +
+            `Уже проставлені наряди на цей місяць не будуть змінені, відпустки/відрядження/лікарняні — враховані.`
         );
         if (!proceed) return;
 
@@ -758,19 +778,29 @@
         const svc = {};
         staff.forEach(emp => { svc[emp] = monthsOfService(emp); });
 
+        // "load" — робоча копія навантаження за ВСЮ історію (з stats), яку
+        // ми інкрементуємо по ходу розподілу цього місяця, щоб кожне
+        // наступне рішення враховувало вже щойно призначені наряди теж.
         const load = {};
         staff.forEach(emp => {
-            load[emp] = { total: stats[emp].duty, thu: stats[emp].thu, sat: stats[emp].sat, sun: stats[emp].sun };
+            load[emp] = { total: stats[emp].duty, thu: stats[emp].thu, fri: stats[emp].fri, sat: stats[emp].sat, sun: stats[emp].sun };
         });
 
-        // Облік для правила "раз на тиждень, максимум N на місяць": рахуємо
-        // з нуля саме для ЦЬОГО місяця (не з усієї історії), і одразу
-        // враховуємо наряди, які вже стоять у місяці вручну — щоб алгоритм
-        // не "забув" про них і не поставив когось надто часто поруч.
+        // Лічильники САМЕ для цього місяця (з нуля), включно з уже вручну
+        // проставленими нарядами — щоб не "забути" про них при перевірці
+        // лімітів і проміжку.
         const monthCount = {};
         const lastAssignedDay = {};
+        const thuCount = {};
+        const friCount = {};
         const weekendCount = {};
-        staff.forEach(emp => { monthCount[emp] = 0; lastAssignedDay[emp] = -Infinity; weekendCount[emp] = 0; });
+        staff.forEach(emp => {
+            monthCount[emp] = 0;
+            lastAssignedDay[emp] = -Infinity;
+            thuCount[emp] = 0;
+            friCount[emp] = 0;
+            weekendCount[emp] = 0;
+        });
         for (let d = 1; d <= totalDays; d++) {
             const dsExisting = getDateString(year, month, d);
             const existingData = schedule[dsExisting];
@@ -780,7 +810,9 @@
                     if (item.type === 'duty' && monthCount.hasOwnProperty(item.emp)) {
                         monthCount[item.emp]++;
                         lastAssignedDay[item.emp] = d;
-                        if (dowExisting === 6 || dowExisting === 0) weekendCount[item.emp]++;
+                        if (dowExisting === 4) thuCount[item.emp]++;
+                        else if (dowExisting === 5) friCount[item.emp]++;
+                        else if (dowExisting === 6 || dowExisting === 0) weekendCount[item.emp]++;
                     }
                 });
             }
@@ -802,32 +834,35 @@
             const alreadyHasDuty = schedule[dateStr].duties.some(d => d.type === 'duty');
             if (alreadyHasDuty) continue; // це вже вручну проставлений наряд — не чіпаємо
 
+            // Крок 1: доступність.
             const basePool = staff.filter(emp => !isEmployeeUnavailable(dateStr, emp) && !AUTOFILL_EXCLUDED.includes(emp));
             let pool = basePool.filter(emp => emp !== prevEmp);
             if (pool.length === 0) pool = basePool;
 
-            // ФІКС 2: пʼятниця (5) і субота (6) — пріоритет водіям, з fallback.
+            // Крок 2: пʼятниця (5) і субота (6) — пріоритет водіям, з fallback.
             if (dow === 5 || dow === 6) {
                 const driverPool = pool.filter(isDriver);
                 if (driverPool.length > 0) pool = driverPool;
             }
 
-            // ФІКС "не більше одного вихідного на місяць": для суботи й неділі
-            // спершу звужуємо пул до тих, у кого ще немає жодного (або менше
-            // ліміту) вихідного чергування цього місяця. Це має вищий
-            // пріоритет за загальний ліміт/проміжок нижче — якщо є хоч один
-            // такий кандидат, обирати будемо лише серед них.
-            if (dow === 6 || dow === 0) {
-                const noWeekendYet = pool.filter(emp => weekendCount[emp] < AUTOFILL_MAX_WEEKEND_PER_MONTH);
-                if (noWeekendYet.length > 0) pool = noWeekendYet;
+            // Крок 3: категорійний ліміт для ЦЬОГО конкретного типу дня —
+            // найвищий пріоритет серед "м'яких" правил. Якщо для четверга
+            // /пʼятниці/вихідного є хоч один, хто ще не вичерпав ліміт саме
+            // цієї категорії — обираємо тільки серед них.
+            if (dow === 4) {
+                const catPool = pool.filter(emp => thuCount[emp] < AUTOFILL_MAX_THU_PER_MONTH);
+                if (catPool.length > 0) pool = catPool;
+            } else if (dow === 5) {
+                const catPool = pool.filter(emp => friCount[emp] < AUTOFILL_MAX_FRI_PER_MONTH);
+                if (catPool.length > 0) pool = catPool;
+            } else if (dow === 6 || dow === 0) {
+                const catPool = pool.filter(emp => weekendCount[emp] < AUTOFILL_MAX_WEEKEND_PER_MONTH);
+                if (catPool.length > 0) pool = catPool;
             }
 
-            // ФІКС "раз на тиждень": спершу пробуємо лише тих, хто ще не
-            // вичерпав місячний ліміт І кому вже минуло достатньо днів з
-            // останнього чергування. Якщо так нікого не лишилось —
-            // послаблюємо до "хоча б проміжок витриманий", і лише як
-            // останній варіант беремо будь-кого з пулу (щоб день не лишився
-            // взагалі без чергового).
+            // Крок 4: загальний страхувальний ліміт — раз на N днів, не
+            // більше M на місяць сумарно (стосується переважно звичайних
+            // будніх днів, для Чт/Пт/вихідних крок 3 вже майже все вирішив).
             const strictPool = pool.filter(emp =>
                 monthCount[emp] < AUTOFILL_MAX_PER_MONTH &&
                 (day - lastAssignedDay[emp]) >= AUTOFILL_MIN_GAP_DAYS
@@ -843,9 +878,12 @@
 
             if (pool.length === 0) { skippedNoOne++; continue; } // усі відсутні цього дня
 
-            // ФІКС 1: сортуємо за навантаженням на місяць стажу, а не сирими лічильниками.
+            // Крок 5: серед тих, хто пройшов усі фільтри — обираємо
+            // найменш навантаженого САМЕ для цієї категорії дня (за всю
+            // історію, нормалізовано на стаж).
             let sortKey;
             if (dow === 4) sortKey = e => [load[e].thu / svc[e], load[e].total / svc[e]];
+            else if (dow === 5) sortKey = e => [load[e].fri / svc[e], load[e].total / svc[e]];
             else if (dow === 6) sortKey = e => [load[e].sat / svc[e], load[e].total / svc[e]];
             else if (dow === 0) sortKey = e => [load[e].sun / svc[e], load[e].total / svc[e]];
             else sortKey = e => [load[e].total / svc[e], 0];
@@ -860,19 +898,22 @@
 
             load[chosen].total++;
             if (dow === 4) load[chosen].thu++;
+            else if (dow === 5) load[chosen].fri++;
             else if (dow === 6) load[chosen].sat++;
             else if (dow === 0) load[chosen].sun++;
 
             monthCount[chosen]++;
             lastAssignedDay[chosen] = day;
-            if (dow === 6 || dow === 0) weekendCount[chosen]++;
+            if (dow === 4) thuCount[chosen]++;
+            else if (dow === 5) friCount[chosen]++;
+            else if (dow === 6 || dow === 0) weekendCount[chosen]++;
 
             prevEmp = chosen;
             assigned++;
         }
 
         let msg = `Готово! Автоматично розподілено ${assigned} чергувань на ${monthLabel}.`;
-        if (skippedNoOne > 0) msg += `\n\n⚠️ ${skippedNoOne} дн. залишились без чергового — усі були відсутні одночасно (або жоден водій не був доступний у Пт/Сб). Перевірте ці дні вручну.`;
+        if (skippedNoOne > 0) msg += `\n\n⚠️ ${skippedNoOne} дн. залишились без чергового — усі підходящі кандидати були відсутні або зайняті одночасно. Перевірте ці дні вручну.`;
         msg += `\n\nПерегляньте розклад і за потреби скоригуйте вручну, потім натисніть «Зберегти зміни».`;
         alert(msg);
 
