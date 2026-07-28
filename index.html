@@ -12,10 +12,50 @@
             --border-color: rgba(15, 23, 42, 0.08);
             --text-main: #0f172a;
             --text-muted: #64748b;
+            --text-heading: #1e293b;
+            --text-secondary: #334155;
             --accent-primary: #4f46e5;
             --critical-day: #ef4444;
             --good-day: #059669;
             --success: #10b981;
+            --card-bg: #ffffff;
+            --card-border: rgba(15, 23, 42, 0.07);
+            --card-border-soft: rgba(15, 23, 42, 0.06);
+            --divider: #f1f5f9;
+            --divider-dashed: #eef2f6;
+            --input-bg: #fbfcfe;
+            --input-border: #e2e8f0;
+            --chip-bg: rgba(15, 23, 42, 0.03);
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --weekend-tint: #fffbfb;
+            --thu-tint: #f2fdf8;
+            --scrollbar-thumb: #e2e8f0;
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient: linear-gradient(135deg, #0b1120 0%, #131c2e 100%);
+            --panel-bg: rgba(22, 30, 46, 0.85);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #e5e9f0;
+            --text-muted: #93a0b4;
+            --text-heading: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --accent-primary: #818cf8;
+            --critical-day: #f87171;
+            --good-day: #34d399;
+            --success: #34d399;
+            --card-bg: #1a2233;
+            --card-border: rgba(255, 255, 255, 0.07);
+            --card-border-soft: rgba(255, 255, 255, 0.06);
+            --divider: #2a3448;
+            --divider-dashed: #29334a;
+            --input-bg: #1f2839;
+            --input-border: #333f57;
+            --chip-bg: rgba(255, 255, 255, 0.04);
+            --shadow-color: rgba(0, 0, 0, 0.35);
+            --weekend-tint: #1e1a20;
+            --thu-tint: #142420;
+            --scrollbar-thumb: #333f57;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Manrope', sans-serif; }
@@ -26,6 +66,7 @@
             min-height: 100vh;
             padding: 1.5rem;
             -webkit-font-smoothing: antialiased;
+            transition: background 0.2s ease, color 0.2s ease;
         }
 
         .container {
@@ -53,16 +94,16 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         }
 
-        .logo-area h1 { font-family: 'Manrope', sans-serif; font-size: 1.2rem; font-weight: 800; color: #1e293b; letter-spacing: -0.02em; }
+        .logo-area h1 { font-family: 'Manrope', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--text-heading); letter-spacing: -0.02em; }
         .logo-area span { color: var(--accent-primary); }
         .month-selector { display: flex; align-items: center; gap: 0.85rem; }
         .current-month-title { font-family: 'Manrope', sans-serif; font-size: 1.05rem; font-weight: 800; min-width: 150px; text-align: center; }
         .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
         .btn {
-            background: #ffffff;
-            border: 1px solid rgba(15, 23, 42, 0.12);
-            color: #1e293b;
+            background: var(--card-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-heading);
             padding: 0.45rem 1rem;
             border-radius: 10px;
             cursor: pointer;
@@ -70,10 +111,11 @@
             font-size: 0.82rem;
             transition: all 0.15s ease;
         }
-        .btn:hover { border-color: var(--accent-primary); background: rgba(79, 70, 229, 0.05); transform: translateY(-1px); }
-        .btn-notify { border-color: rgba(79,70,229,0.25); color: var(--accent-primary); background: rgba(79,70,229,0.04); }
-        .btn-save { border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); }
-        .btn-auto { border-color: rgba(5, 150, 105, 0.3); color: var(--good-day); background: rgba(5, 150, 105, 0.05); }
+        .btn:hover { border-color: var(--accent-primary); background: rgba(79, 70, 229, 0.08); transform: translateY(-1px); }
+        .btn-notify { border-color: rgba(79,70,229,0.25); color: var(--accent-primary); background: rgba(79,70,229,0.06); }
+        .btn-save { border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.08); }
+        .btn-auto { border-color: rgba(5, 150, 105, 0.3); color: var(--good-day); background: rgba(5, 150, 105, 0.08); }
+        .btn-theme { border-color: var(--input-border); color: var(--text-heading); background: var(--card-bg); font-size: 1rem; padding: 0.45rem 0.7rem; line-height: 1; }
 
         /* КАЛЕНДАР */
         .main-panel {
@@ -94,33 +136,33 @@
             letter-spacing: 0.06em;
             padding: 0.4rem 0;
             border-radius: 8px;
-            background: rgba(15, 23, 42, 0.03);
+            background: var(--chip-bg);
         }
         .weekday-label.is-critical { color: #dc2626; background: rgba(239, 68, 68, 0.06); }
         .weekday-label.is-good { color: var(--good-day); background: rgba(5, 150, 105, 0.08); }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
 
         .calendar-day {
-            background: #ffffff;
-            border: 1px solid rgba(15, 23, 42, 0.07);
-            border-top: 3px solid rgba(15, 23, 42, 0.07);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-top: 3px solid var(--card-border);
             border-radius: 14px;
             min-height: 190px;
             padding: 0.5rem 0.5rem 0.45rem;
             display: flex;
             flex-direction: column;
             gap: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+            box-shadow: 0 2px 4px var(--shadow-color);
             position: relative;
             overflow: hidden;
-            transition: box-shadow 0.15s ease;
+            transition: box-shadow 0.15s ease, background 0.2s ease, border-color 0.2s ease;
         }
         .calendar-day.empty { background: transparent; border: none; pointer-events: none; box-shadow: none; }
 
-        .day-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 3px; padding-bottom: 4px; margin-bottom: 2px; border-bottom: 1px solid #f1f5f9; }
+        .day-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 3px; padding-bottom: 4px; margin-bottom: 2px; border-bottom: 1px solid var(--divider); }
         .day-number-wrap { display: flex; align-items: baseline; gap: 5px; }
-        .day-number { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 700; color: #334155; letter-spacing: -0.02em; }
-        .day-weekday { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em; }
+        .day-number { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 700; color: var(--text-secondary); letter-spacing: -0.02em; }
+        .day-weekday { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.04em; }
         .calendar-day.critical-day .day-number { color: var(--critical-day); }
         .calendar-day.critical-day .day-weekday { color: #ef9999; }
         .calendar-day.good-day .day-number { color: var(--good-day); }
@@ -148,7 +190,7 @@
         .section-title { font-size: 0.56rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.03em; }
         .item-list { display: flex; flex-direction: column; gap: 2px; max-height: 58px; overflow-y: auto; padding-right: 1px; }
         .item-list::-webkit-scrollbar { width: 4px; }
-        .item-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+        .item-list::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
 
         .item-row {
             display: flex;
@@ -169,7 +211,7 @@
 
         /* Кнопки вибору */
         .add-box { display: flex; gap: 2px; margin-top: 1px; }
-        .quick-select { width: 100%; font-size: 0.64rem; padding: 2px; border-radius: 5px; border: 1px solid #e2e8f0; outline: none; background: #fbfcfe; font-weight: 500; color: #64748b; }
+        .quick-select { width: 100%; font-size: 0.64rem; padding: 2px; border-radius: 5px; border: 1px solid var(--input-border); outline: none; background: var(--input-bg); font-weight: 500; color: var(--text-muted); }
 
         /* АНАЛІТИКА */
         .sidebar { display: flex; flex-direction: column; gap: 1.25rem; }
@@ -181,8 +223,8 @@
             padding: 1.25rem 1.4rem;
             box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.05);
         }
-        .stats-panel h2 { font-family: 'Manrope', sans-serif; font-size: 1.05rem; font-weight: 800; color: #1e293b; margin-bottom: 0.9rem; }
-        .stats-subheading { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--accent-primary); margin: 1rem 0 0.5rem 0; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 4px; letter-spacing: 0.02em; }
+        .stats-panel h2 { font-family: 'Manrope', sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--text-heading); margin-bottom: 0.9rem; }
+        .stats-subheading { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--accent-primary); margin: 1rem 0 0.5rem 0; border-bottom: 1px dashed var(--border-color); padding-bottom: 4px; letter-spacing: 0.02em; }
         .stats-list { display: flex; flex-direction: column; gap: 0.4rem; }
 
         .stats-legend-header {
@@ -200,8 +242,8 @@
         .stats-legend-header span:first-child { text-align: left; }
 
         .stat-card {
-            background: #ffffff;
-            border: 1px solid rgba(15, 23, 42, 0.06);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border-soft);
             border-radius: 11px;
             padding: 0.5rem 0.7rem 0.55rem;
             display: flex;
@@ -209,7 +251,7 @@
             gap: 0.35rem;
         }
         .stat-top { display: grid; grid-template-columns: 130px repeat(8, 1fr); gap: 0.35rem; align-items: center; }
-        .stat-name { font-weight: 700; font-size: 0.76rem; color: #334155; display: flex; align-items: center; gap: 6px; }
+        .stat-name { font-weight: 700; font-size: 0.76rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
         .stat-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
         .badge { padding: 0.22rem 0.1rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700; text-align: center; }
 
@@ -221,7 +263,7 @@
         .badge-other { background: rgba(100, 116, 139, 0.06); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.15); }
         .badge-sum { background: #0f172a; color: #fff; border: 1px solid #0f172a; }
 
-        .stat-bar-track { height: 5px; border-radius: 3px; background: #f1f5f9; overflow: hidden; }
+        .stat-bar-track { height: 5px; border-radius: 3px; background: var(--divider); overflow: hidden; }
         .stat-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
 
         .stat-meta {
@@ -232,16 +274,17 @@
             font-size: 0.62rem;
             color: var(--text-muted);
             padding-top: 0.35rem;
-            border-top: 1px dashed #f1f5f9;
+            border-top: 1px dashed var(--divider);
         }
         .meta-label { font-weight: 700; white-space: nowrap; }
         .meta-input {
             font-size: 0.62rem;
             padding: 1px 4px;
             border-radius: 5px;
-            border: 1px solid #e2e8f0;
-            background: #fbfcfe;
-            color: #334155;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-secondary);
+            color-scheme: light dark;
         }
         .meta-rate { font-weight: 800; color: var(--accent-primary); white-space: nowrap; }
         .meta-driver { display: flex; align-items: center; gap: 3px; cursor: pointer; margin-left: auto; white-space: nowrap; }
@@ -292,11 +335,12 @@
             <h1>DutyControl <span>Pro v9</span></h1>
         </div>
         <div class="month-selector">
-            <button class="btn" onclick="changeMonth(-1)">◀</button>
+            <button class="btn" onclick="changeMonth(-1)">◀️</button>
             <div class="current-month-title" id="monthTitle">Липень 2026</div>
-            <button class="btn" onclick="changeMonth(1)">▶</button>
+            <button class="btn" onclick="changeMonth(1)">▶️</button>
         </div>
         <div class="header-actions">
+            <button class="btn btn-theme" id="themeToggleBtn" onclick="toggleTheme()" title="Змінити тему">🌙</button>
             <button class="btn btn-notify" onclick="copyDutyMessage(0)">🔔 Наряд сьогодні</button>
             <button class="btn btn-notify" onclick="copyDutyMessage(1)">🔔 Наряд завтра</button>
             <button class="btn btn-auto" onclick="autoFillNextMonth()">🤖 Заповнити наступний місяць</button>
@@ -354,6 +398,27 @@
 </div>
 
 <script>
+    // ---------- ТЕМА (світла/темна) ----------
+    // Застосовується одразу при завантаженні скрипта (до initCalendar),
+    // щоб уникнути "спалаху" світлої теми при відкритті сторінки вночі.
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const btn = document.getElementById('themeToggleBtn');
+        if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('duty_theme_v1', next);
+        applyTheme(next);
+        initCalendar(); // перемальовуємо, бо частина кольорів рахується інлайново в JS
+    }
+    (function initTheme() {
+        const saved = localStorage.getItem('duty_theme_v1');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+    })();
+
     // ⚠️ Після передеплою Google Apps Script (Code.gs) вставте сюди НОВИЙ URL
     // веб-застосунку (Deploy → New deployment → Web app → Anyone).
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwszcUgMxY0eS-M0234quVF6HuQGfGarHXNptHE0DyywFDgYsUPyb_JUXRhsf17csUP/exec"; 
@@ -511,16 +576,16 @@
             let dutyChipHtml = '';
             if (onDuty.length === 1) {
                 const c = employeeColor(onDuty[0].emp);
-                cellStyle = `border-top-color:${c.border}; background: linear-gradient(180deg, ${c.bg} 0%, #ffffff 62%);`;
+                cellStyle = `border-top-color:${c.border}; background: linear-gradient(180deg, ${c.bg} 0%, var(--card-bg) 62%);`;
                 dutyChipHtml = `<span class="duty-chip" style="background:${c.border};">${onDuty[0].emp.split(' ')[0]}</span>`;
             } else if (onDuty.length > 1) {
                 const bgTints = onDuty.map(d => employeeColor(d.emp).bg);
                 cellStyle = `border-top-color:#334155; background: linear-gradient(135deg, ${bgTints.join(', ')});`;
                 dutyChipHtml = `<span class="duty-chip" style="background:#334155;">${onDuty.length} чергових</span>`;
             } else if (isCritDay) {
-                cellStyle = `background:#fffbfb;`;
+                cellStyle = `background:var(--weekend-tint);`;
             } else if (isGoodDay) {
-                cellStyle = `background:#f2fdf8;`;
+                cellStyle = `background:var(--thu-tint);`;
             }
             if (cellStyle) dayCell.setAttribute('style', cellStyle);
 
@@ -563,7 +628,7 @@
                 </div>
 
                 <!-- 2. ЗОНА ВІДПОВІДАЛЬНИХ ВІД КЕРІВНИЦТВА -->
-                <div class="day-section" style="border-top:1px dashed #eef2f6; padding-top:3px;">
+                <div class="day-section" style="border-top:1px dashed var(--divider-dashed); padding-top:3px;">
                     <span class="section-title">👔 Керівництво (Тиждень)</span>
                     <div class="item-list">${mgmtListHtml}</div>
                     <div class="add-box">
@@ -580,7 +645,7 @@
                 </div>
 
                 <!-- 3. ЗОНА ВІДСУТНОСТІ ОСНОВНОГО СКЛАДУ -->
-                <div class="day-section" style="margin-top:auto; border-top:1px dashed #eef2f6; padding-top:3px;">
+                <div class="day-section" style="margin-top:auto; border-top:1px dashed var(--divider-dashed); padding-top:3px;">
                     <span class="section-title">🏖️ Відпустки / Лікарняні</span>
                     <div class="item-list">${absListHtml}</div>
                     <div class="add-box">
@@ -777,17 +842,11 @@
         const svc = {};
         staff.forEach(emp => { svc[emp] = monthsOfService(emp); });
 
-        // "load" — робоча копія навантаження за ВСЮ історію (з stats), яку
-        // ми інкрементуємо по ходу розподілу цього місяця, щоб кожне
-        // наступне рішення враховувало вже щойно призначені наряди теж.
         const load = {};
         staff.forEach(emp => {
             load[emp] = { total: stats[emp].duty, thu: stats[emp].thu, fri: stats[emp].fri, sat: stats[emp].sat, sun: stats[emp].sun };
         });
 
-        // Лічильники САМЕ для цього місяця (з нуля), включно з уже вручну
-        // проставленими нарядами — щоб не "забути" про них при перевірці
-        // лімітів і проміжку.
         const monthCount = {};
         const lastAssignedDay = {};
         const thuCount = {};
@@ -831,23 +890,17 @@
             if (!schedule[dateStr].absences) schedule[dateStr].absences = [];
 
             const alreadyHasDuty = schedule[dateStr].duties.some(d => d.type === 'duty');
-            if (alreadyHasDuty) continue; // це вже вручну проставлений наряд — не чіпаємо
+            if (alreadyHasDuty) continue;
 
-            // Крок 1: доступність.
             const basePool = staff.filter(emp => !isEmployeeUnavailable(dateStr, emp) && !AUTOFILL_EXCLUDED.includes(emp));
             let pool = basePool.filter(emp => emp !== prevEmp);
             if (pool.length === 0) pool = basePool;
 
-            // Крок 2: пʼятниця (5) і субота (6) — пріоритет водіям, з fallback.
             if (dow === 5 || dow === 6) {
                 const driverPool = pool.filter(isDriver);
                 if (driverPool.length > 0) pool = driverPool;
             }
 
-            // Крок 3: категорійний ліміт для ЦЬОГО конкретного типу дня —
-            // найвищий пріоритет серед "м'яких" правил. Якщо для четверга
-            // /пʼятниці/вихідного є хоч один, хто ще не вичерпав ліміт саме
-            // цієї категорії — обираємо тільки серед них.
             if (dow === 4) {
                 const catPool = pool.filter(emp => thuCount[emp] < AUTOFILL_MAX_THU_PER_MONTH);
                 if (catPool.length > 0) pool = catPool;
@@ -859,9 +912,6 @@
                 if (catPool.length > 0) pool = catPool;
             }
 
-            // Крок 4: загальний страхувальний ліміт — раз на N днів, не
-            // більше M на місяць сумарно (стосується переважно звичайних
-            // будніх днів, для Чт/Пт/вихідних крок 3 вже майже все вирішив).
             const strictPool = pool.filter(emp =>
                 monthCount[emp] < AUTOFILL_MAX_PER_MONTH &&
                 (day - lastAssignedDay[emp]) >= AUTOFILL_MIN_GAP_DAYS
@@ -871,15 +921,10 @@
             } else {
                 const gapPool = pool.filter(emp => (day - lastAssignedDay[emp]) >= AUTOFILL_MIN_GAP_DAYS);
                 if (gapPool.length > 0) pool = gapPool;
-                // інакше лишаємо pool як є — доведеться комусь заступити частіше,
-                // ніж хотілося б, бо інакше день лишиться зовсім без чергового
             }
 
-            if (pool.length === 0) { skippedNoOne++; continue; } // усі відсутні цього дня
+            if (pool.length === 0) { skippedNoOne++; continue; }
 
-            // Крок 5: серед тих, хто пройшов усі фільтри — обираємо
-            // найменш навантаженого САМЕ для цієї категорії дня (за всю
-            // історію, нормалізовано на стаж).
             let sortKey;
             if (dow === 4) sortKey = e => [load[e].thu / svc[e], load[e].total / svc[e]];
             else if (dow === 5) sortKey = e => [load[e].fri / svc[e], load[e].total / svc[e]];
@@ -920,7 +965,6 @@
         initCalendar();
     }
 
-    // --- Сповіщення про наряд (текст для Telegram/Viber/WhatsApp) ---
     function generateDutyMessage(dateStr) {
         const dayData = schedule[dateStr] || { duties: [], mgmt: [], absences: [] };
         const [y, m, d] = dateStr.split('-').map(Number);
@@ -966,10 +1010,6 @@
         saveBtn.innerText = "Зберігаємо...";
         saveBtn.disabled = true;
 
-        // Важливо: без mode:"no-cors" і з Content-Type: text/plain — це не дає
-        // Google Apps Script CORS-помилки на preflight-запиті, і при цьому
-        // дозволяє нам ПРОЧИТАТИ справжню відповідь скрипта (успіх/помилка),
-        // а не сліпо показувати "успіх" навіть коли запис не відбувся.
         fetch(GOOGLE_SCRIPT_URL, {
             method: "POST",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -990,12 +1030,6 @@
         .finally(() => { saveBtn.innerText = "Зберегти зміни"; saveBtn.disabled = false; });
     }
 
-    // ФІКС 3: при відкритті сторінки спершу тягнемо актуальний розклад із
-    // Google-таблиці (GET-запит до того ж Apps Script), і тільки якщо це
-    // не вдалося — показуємо те, що збережено локально в цьому браузері.
-    // ВАЖЛИВО: сам Apps Script має вміти відповідати на GET (функція doGet),
-    // повертаючи { status: "ok", data: {...schedule...} } — якщо у вашому
-    // скрипті такої функції ще немає, її потрібно додати на боці Google.
     function loadFromCloud() {
         const monthTitleEl = document.getElementById('monthTitle');
         monthTitleEl.innerText = 'Завантаження...';
@@ -1004,14 +1038,9 @@
             .then(res => res.json())
             .then(data => {
                 if (data && data.status === 'ok' && data.data && Object.keys(data.data).length > 0) {
-                    // У хмарі є реальні дані — саме вони спільні для всіх, показуємо їх.
                     schedule = data.data;
                     localStorage.setItem('duty_v8', JSON.stringify(schedule));
                 } else {
-                    // Хмара порожня (наприклад, щойно підключили новий Apps
-                    // Script) — НЕ затираємо те, що вже заповнено локально.
-                    // Замість цього залишаємо поточний schedule як є, і при
-                    // першому "Зберегти зміни" саме він піде в хмару.
                     console.warn('Хмара порожня або недоступна у форматі — залишаю локальну копію без змін.');
                 }
             })
