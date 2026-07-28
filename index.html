@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DutyControl Pro — Мульти-Панель v8</title>
+    <title>DutyControl Pro — Мульти-Панель v9</title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -125,6 +125,7 @@
         .calendar-day.critical-day .day-weekday { color: #ef9999; }
         .calendar-day.good-day .day-number { color: var(--good-day); }
         .calendar-day.good-day .day-weekday { color: #6ee7b7; }
+        .driver-badge { font-size: 0.55rem; font-weight: 800; color: #0369a1; background: rgba(3,105,161,0.1); border: 1px solid rgba(3,105,161,0.2); border-radius: 5px; padding: 1px 4px; }
 
         .duty-chip {
             font-size: 0.58rem;
@@ -222,7 +223,64 @@
         .stat-bar-track { height: 5px; border-radius: 3px; background: #f1f5f9; overflow: hidden; }
         .stat-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
 
+        .stat-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.62rem;
+            color: var(--text-muted);
+            padding-top: 0.35rem;
+            border-top: 1px dashed #f1f5f9;
+        }
+        .meta-label { font-weight: 700; white-space: nowrap; }
+        .meta-input {
+            font-size: 0.62rem;
+            padding: 1px 4px;
+            border-radius: 5px;
+            border: 1px solid #e2e8f0;
+            background: #fbfcfe;
+            color: #334155;
+        }
+        .meta-rate { font-weight: 800; color: var(--accent-primary); white-space: nowrap; }
+        .meta-driver { display: flex; align-items: center; gap: 3px; cursor: pointer; margin-left: auto; white-space: nowrap; }
+        .meta-driver input { cursor: pointer; }
+
         .legend-note { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.9rem; line-height: 1.5; }
+
+        /* МОБІЛЬНА ВЕРСІЯ */
+        @media (max-width: 780px) {
+            body { padding: 0.6rem; }
+            .container { gap: 0.75rem; }
+
+            header { flex-direction: column; align-items: stretch; padding: 0.85rem 1rem; }
+            .logo-area { text-align: center; }
+            .month-selector { justify-content: center; }
+            .header-actions { justify-content: center; }
+            .btn { flex: 1 1 auto; font-size: 0.76rem; padding: 0.5rem 0.7rem; }
+
+            .main-panel { padding: 0.75rem; }
+            .weekdays-grid { display: none; }
+            .calendar-grid { grid-template-columns: 1fr; gap: 10px; }
+            .calendar-day { min-height: auto; }
+            .calendar-day.empty { display: none; }
+
+            .stats-panel { padding: 1rem; }
+            .stats-legend-header { display: none; }
+            .stat-top {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "name"
+                    "badges";
+                gap: 0.3rem;
+            }
+            .stat-name { grid-area: name; }
+            .stat-top .badge:not(.stat-name) { display: inline-block; margin-right: 0.25rem; }
+            .stat-top { display: flex; flex-direction: column; align-items: flex-start; }
+            .stat-top > .badge { align-self: stretch; }
+            .stat-meta { flex-direction: column; align-items: flex-start; }
+            .meta-driver { margin-left: 0; }
+        }
     </style>
 </head>
 <body>
@@ -230,7 +288,7 @@
 <div class="container">
     <header>
         <div class="logo-area">
-            <h1>DutyControl <span>Pro v8</span></h1>
+            <h1>DutyControl <span>Pro v9</span></h1>
         </div>
         <div class="month-selector">
             <button class="btn" onclick="changeMonth(-1)">◀</button>
@@ -279,16 +337,22 @@
             <div class="stats-list" id="statsListManagement"></div>
 
             <div class="legend-note">
-                Колір біля кожного імені у списку — це «підпис» працівника: у календарі кожен запис пофарбований у той самий колір, тому легко відстежити, хто і де стоїть, навіть не читаючи прізвище. Смужка під цифрами показує навантаження відносно найзавантаженішого працівника групи.
+                Колір біля кожного імені у списку — це «підпис» працівника: у календарі кожен запис пофарбований у той самий колір, тому легко відстежити, хто і де стоїть, навіть не читаючи прізвище. Смужка під цифрами показує навантаження відносно найзавантаженішого працівника групи — але тепер відносно <b>стажу</b>: під кожною карткою можна вказати місяць початку роботи, і сортування/смужка рахуються як «нарядів на місяць стажу», а не сирий підсумок за весь час. Так новачок із 3 нарядами за 2 місяці й ветеран із 15 за рік показуються як однаково завантажені.
                 <br><br>
                 Четвер, субота і неділя рахуються окремими колонками — саме ці дні найчутливіші до справедливого розподілу (четвер дає три вихідні поспіль, субота — найменш бажаний день). «Інше» (відпустки, відрядження, лікарняні) у загальний підсумок «Всього» не входить.
+                <br><br>
+                Позначка 🚗 біля працівника означає, що він керує кермом: автозаповнення в пʼятницю і суботу спершу підбирає чергового саме серед водіїв, і лише якщо жоден водій того дня не вільний — бере будь-кого іншого.
+                <br><br>
+                Кулик Д.І. на підхваті, тому кнопка «Заповнити наступний місяць» його ніколи не призначає автоматично — тільки якщо додати вручну через випадаючий список у клітинці конкретного дня.
             </div>
         </div>
     </aside>
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwogZQZunXCZELU5KLA_gWuDVre5HsWxdpaLakzPkh99MzAFHRn6UsSBgxr2XVNB-p-/exec";
+    // ⚠️ Після передеплою Google Apps Script (Code.gs) вставте сюди НОВИЙ URL
+    // веб-застосунку (Deploy → New deployment → Web app → Anyone).
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwszcUgMxY0eS-M0234quVF6HuQGfGarHXNptHE0DyywFDgYsUPyb_JUXRhsf17csUP/exec";
 
     const staff = [
         "Дем'яненко Т.І.", "Цибко В.І.", "Ївженко В.О.", "Щербатюк М.В.",
@@ -298,6 +362,10 @@
     const management = [
         "Приймак А.І.", "Шахляров Т.Е.", "Хворостян В.В."
     ];
+    // Кулик Д.І. — "на підхваті": в автоматичний розподіл (autoFillNextMonth)
+    // не потрапляє взагалі (ні як новачок, ні як усі інші), його можна
+    // призначити тільки вручну через випадаючий список у клітинці дня.
+    const AUTOFILL_EXCLUDED = ["Кулик Д.І."];
     // Єдиний список — саме за індексом у ньому кожному працівнику присвоюється
     // сталий колір (golden-angle розподіл відтінків, тому кольори завжди
     // виглядають різними й приглушеними, скільки б людей не було).
@@ -313,9 +381,53 @@
         };
     }
 
+    // ---------- ФІКС 1: стаж співробітника ----------
+    // Місяць початку роботи (формат "YYYY-MM") — редагується прямо в картці
+    // аналітики. Якщо не вказано — тимчасово рахуємо від початку поточного
+    // року, поки хтось не виправить дату вручну.
+    let employeeStart = JSON.parse(localStorage.getItem('duty_emp_start_v1')) || {};
+    allEmployees.forEach(emp => {
+        if (!employeeStart[emp]) {
+            employeeStart[emp] = `${new Date().getFullYear()}-01`;
+        }
+    });
+
+    function saveEmployeeStart() {
+        localStorage.setItem('duty_emp_start_v1', JSON.stringify(employeeStart));
+    }
+
+    function setEmployeeStart(emp, value) {
+        if (!value) return;
+        employeeStart[emp] = value;
+        saveEmployeeStart();
+        calculateStats();
+    }
+
+    // Скільки місяців людина вже працює (мінімум 1, щоб не ділити на нуль).
+    function monthsOfService(emp) {
+        const raw = employeeStart[emp];
+        if (!raw) return 1;
+        const [sy, sm] = raw.split('-').map(Number);
+        const now = new Date();
+        const months = (now.getFullYear() - sy) * 12 + (now.getMonth() - (sm - 1)) + 1;
+        return Math.max(1, months);
+    }
+
+    // ---------- ФІКС 2: водії ----------
+    let driverFlags = JSON.parse(localStorage.getItem('duty_drivers_v1')) || {};
+    function isDriver(emp) { return !!driverFlags[emp]; }
+    function toggleDriver(emp, checked) {
+        driverFlags[emp] = checked;
+        localStorage.setItem('duty_drivers_v1', JSON.stringify(driverFlags));
+        initCalendar();
+    }
+
     let currentDate = new Date();
     // Структура даних: { "YYYY-MM-DD": { duties: [], mgmt: [], absences: [] } }
-    let schedule = JSON.parse(localStorage.getItem('duty_v7')) || JSON.parse(localStorage.getItem('duty_v6')) || JSON.parse(localStorage.getItem('duty_v5_mgmt_fixed')) || {};
+    let schedule = JSON.parse(localStorage.getItem('duty_v8')) ||
+                   JSON.parse(localStorage.getItem('duty_v7')) ||
+                   JSON.parse(localStorage.getItem('duty_v6')) ||
+                   JSON.parse(localStorage.getItem('duty_v5_mgmt_fixed')) || {};
 
     const monthsUA = [
         "Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
@@ -333,8 +445,9 @@
 
     function renderRow(item, label, dateStr, listType, idx) {
         const c = employeeColor(item.emp);
+        const drv = isDriver(item.emp) ? ' <span class="driver-badge">🚗</span>' : '';
         return `<div class="item-row" style="background:${c.bg}; border-left-color:${c.border}; color:${c.text};">
-                    <span><b>${label}</b> ${item.emp.split(' ')[0]}</span>
+                    <span><b>${label}</b> ${item.emp.split(' ')[0]}${drv}</span>
                     <button class="btn-del" onclick="removeItem('${dateStr}','${listType}',${idx})">×</button>
                 </div>`;
     }
@@ -425,9 +538,9 @@
                         <select class="quick-select" onchange="addItem('${dateStr}', 'duties', this.value)">
                             <option value="">+ Додати наряд...</option>
                             <option value="duty:X">— Добове чергування (X) —</option>
-                            ${staff.map(e => `<option value="duty:${e}">${e}</option>`).join('')}
+                            ${staff.map(e => `<option value="duty:${e}">${e}${isDriver(e) ? ' 🚗' : ''}</option>`).join('')}
                             <option value="work:V">— Відпрацювання (В) —</option>
-                            ${staff.map(e => `<option value="work:${e}">${e}</option>`).join('')}
+                            ${staff.map(e => `<option value="work:${e}">${e}${isDriver(e) ? ' 🚗' : ''}</option>`).join('')}
                         </select>
                     </div>
                 </div>
@@ -547,20 +660,24 @@
         const stats = computeStats();
 
         function renderGroup(group) {
-            // "Всього" рахує лише чергування + відпрацювання. Відпустки/
-            // відрядження/лікарняні ("Інше") у загальний підсумок не входять.
-            const totals = group.map(emp => stats[emp].duty + stats[emp].work);
-            const maxTotal = Math.max(1, ...totals);
+            // ФІКС 1: "Всього" рахує чергування + відпрацювання, але
+            // сортування і смужка навантаження тепер базуються на
+            // "нарядів на місяць стажу" (rate), а не на сирій сумі —
+            // так новачки й ветерани порівнюються справедливо.
+            const rate = {};
+            group.forEach(emp => {
+                const total = stats[emp].duty + stats[emp].work;
+                rate[emp] = total / monthsOfService(emp);
+            });
+            const maxRate = Math.max(0.01, ...group.map(emp => rate[emp]));
 
-            const ordered = [...group].sort((a, b) =>
-                (stats[b].duty + stats[b].work) - (stats[a].duty + stats[a].work)
-            );
+            const ordered = [...group].sort((a, b) => rate[b] - rate[a]);
 
             return ordered.map(emp => {
                 const s = stats[emp];
                 const total = s.duty + s.work;
                 const c = employeeColor(emp);
-                const pct = Math.round((total / maxTotal) * 100);
+                const pct = Math.round((rate[emp] / maxRate) * 100);
                 return `
                 <div class="stat-card">
                     <div class="stat-top">
@@ -574,6 +691,12 @@
                         <div class="badge badge-sum">${total}</div>
                     </div>
                     <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${pct}%; background:${c.border};"></div></div>
+                    <div class="stat-meta">
+                        <span class="meta-label">Стаж з</span>
+                        <input type="month" class="meta-input" value="${employeeStart[emp] || ''}" onchange="setEmployeeStart('${emp}', this.value)">
+                        <span class="meta-rate" title="Нарядів на місяць стажу — саме за цим числом вирівнюється навантаження">≈ ${rate[emp].toFixed(2)}/міс</span>
+                        <label class="meta-driver"><input type="checkbox" ${isDriver(emp) ? 'checked' : ''} onchange="toggleDriver('${emp}', this.checked)"> 🚗 водій</label>
+                    </div>
                 </div>`;
             }).join('');
         }
@@ -598,8 +721,10 @@
 
     // Автоматичний розподіл добових чергувань (X) основного складу на
     // наступний місяць. Враховує:
-    //  - вже накопичене навантаження (з усієї історії schedule), включно
-    //    з окремим рахунком по четвергах/суботах/неділях;
+    //  - навантаження, нормалізоване на стаж (ФІКС 1) — окремо по
+    //    четвергах/суботах/неділях і загалом;
+    //  - у пʼятницю й суботу пул кандидатів спершу звужується до водіїв,
+    //    з fallback на всіх, якщо жоден водій не вільний (ФІКС 2);
     //  - вже заздалегідь проставлені відпустки/відрядження/лікарняні —
     //    таких людей у ці дні пропускає;
     //  - вже вручну проставлені наряди — не перезаписує;
@@ -613,11 +738,15 @@
 
         const proceed = confirm(
             `Автоматично розподілити добові чергування (X) основного складу на ${monthLabel}?\n\n` +
+            `Навантаження буде вирівняно з урахуванням стажу кожного (нарядів/місяць), а не сирої кількості. У пʼятницю й суботу пріоритет — водіям 🚗 (якщо жоден водій не вільний, візьме будь-кого іншого). Кулик Д.І. в автоматичний розподіл не потрапляє (на підхваті) — ставити його можна тільки вручну. ` +
             `Уже проставлені наряди на цей місяць не будуть змінені. Заздалегідь внесені відпустки/відрядження/лікарняні буде враховано — таких людей у ці дні алгоритм пропустить.`
         );
         if (!proceed) return;
 
         const stats = computeStats();
+        const svc = {};
+        staff.forEach(emp => { svc[emp] = monthsOfService(emp); });
+
         const load = {};
         staff.forEach(emp => {
             load[emp] = { total: stats[emp].duty, thu: stats[emp].thu, sat: stats[emp].sat, sun: stats[emp].sun };
@@ -639,15 +768,24 @@
             const alreadyHasDuty = schedule[dateStr].duties.some(d => d.type === 'duty');
             if (alreadyHasDuty) continue; // це вже вручну проставлений наряд — не чіпаємо
 
-            let pool = staff.filter(emp => !isEmployeeUnavailable(dateStr, emp) && emp !== prevEmp);
-            if (pool.length === 0) pool = staff.filter(emp => !isEmployeeUnavailable(dateStr, emp));
+            const basePool = staff.filter(emp => !isEmployeeUnavailable(dateStr, emp) && !AUTOFILL_EXCLUDED.includes(emp));
+            let pool = basePool.filter(emp => emp !== prevEmp);
+            if (pool.length === 0) pool = basePool;
+
+            // ФІКС 2: пʼятниця (5) і субота (6) — пріоритет водіям, з fallback.
+            if (dow === 5 || dow === 6) {
+                const driverPool = pool.filter(isDriver);
+                if (driverPool.length > 0) pool = driverPool;
+            }
+
             if (pool.length === 0) { skippedNoOne++; continue; } // усі відсутні цього дня
 
+            // ФІКС 1: сортуємо за навантаженням на місяць стажу, а не сирими лічильниками.
             let sortKey;
-            if (dow === 4) sortKey = e => [load[e].thu, load[e].total];
-            else if (dow === 6) sortKey = e => [load[e].sat, load[e].total];
-            else if (dow === 0) sortKey = e => [load[e].sun, load[e].total];
-            else sortKey = e => [load[e].total, 0];
+            if (dow === 4) sortKey = e => [load[e].thu / svc[e], load[e].total / svc[e]];
+            else if (dow === 6) sortKey = e => [load[e].sat / svc[e], load[e].total / svc[e]];
+            else if (dow === 0) sortKey = e => [load[e].sun / svc[e], load[e].total / svc[e]];
+            else sortKey = e => [load[e].total / svc[e], 0];
 
             pool.sort((a, b) => {
                 const ka = sortKey(a), kb = sortKey(b);
@@ -667,7 +805,7 @@
         }
 
         let msg = `Готово! Автоматично розподілено ${assigned} чергувань на ${monthLabel}.`;
-        if (skippedNoOne > 0) msg += `\n\n⚠️ ${skippedNoOne} дн. залишились без чергового — усі були відсутні одночасно. Перевірте ці дні вручну.`;
+        if (skippedNoOne > 0) msg += `\n\n⚠️ ${skippedNoOne} дн. залишились без чергового — усі були відсутні одночасно (або жоден водій не був доступний у Пт/Сб). Перевірте ці дні вручну.`;
         msg += `\n\nПерегляньте розклад і за потреби скоригуйте вручну, потім натисніть «Зберегти зміни».`;
         alert(msg);
 
@@ -716,7 +854,7 @@
     }
 
     function saveToCloudAndLocal() {
-        localStorage.setItem('duty_v7', JSON.stringify(schedule));
+        localStorage.setItem('duty_v8', JSON.stringify(schedule));
         const saveBtn = document.querySelector('.btn-save');
         saveBtn.innerText = "Зберігаємо...";
         saveBtn.disabled = true;
@@ -745,7 +883,40 @@
         .finally(() => { saveBtn.innerText = "Зберегти зміни"; saveBtn.disabled = false; });
     }
 
-    initCalendar();
+    // ФІКС 3: при відкритті сторінки спершу тягнемо актуальний розклад із
+    // Google-таблиці (GET-запит до того ж Apps Script), і тільки якщо це
+    // не вдалося — показуємо те, що збережено локально в цьому браузері.
+    // ВАЖЛИВО: сам Apps Script має вміти відповідати на GET (функція doGet),
+    // повертаючи { status: "ok", data: {...schedule...} } — якщо у вашому
+    // скрипті такої функції ще немає, її потрібно додати на боці Google.
+    function loadFromCloud() {
+        const monthTitleEl = document.getElementById('monthTitle');
+        monthTitleEl.innerText = 'Завантаження...';
+
+        fetch(GOOGLE_SCRIPT_URL, { method: "GET" })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.status === 'ok' && data.data && Object.keys(data.data).length > 0) {
+                    // У хмарі є реальні дані — саме вони спільні для всіх, показуємо їх.
+                    schedule = data.data;
+                    localStorage.setItem('duty_v8', JSON.stringify(schedule));
+                } else {
+                    // Хмара порожня (наприклад, щойно підключили новий Apps
+                    // Script) — НЕ затираємо те, що вже заповнено локально.
+                    // Замість цього залишаємо поточний schedule як є, і при
+                    // першому "Зберегти зміни" саме він піде в хмару.
+                    console.warn('Хмара порожня або недоступна у форматі — залишаю локальну копію без змін.');
+                }
+            })
+            .catch(err => {
+                console.warn('Не вдалося завантажити розклад з хмари, показую локальну копію в браузері:', err.message);
+            })
+            .finally(() => {
+                initCalendar();
+            });
+    }
+
+    loadFromCloud();
 </script>
 </body>
 </html>
