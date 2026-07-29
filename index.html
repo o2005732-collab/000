@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DutyControl Pro — Мульти-Панель v9</title>
+    <title>DutyControl Pro — Мульти-Панель v10</title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Бібліотека для генерації Word (.docx) прямо в браузері -->
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
@@ -39,7 +41,7 @@
             --text-main: #e5e9f0;
             --text-muted: #93a0b4;
             --text-heading: #f1f5f9;
-            --text-secondary: #cbd5e1;
+            --text-secondary: #e8ecf3;
             --accent-primary: #818cf8;
             --critical-day: #f87171;
             --good-day: #34d399;
@@ -115,6 +117,8 @@
         .btn-notify { border-color: rgba(79,70,229,0.25); color: var(--accent-primary); background: rgba(79,70,229,0.06); }
         .btn-save { border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.08); }
         .btn-auto { border-color: rgba(5, 150, 105, 0.3); color: var(--good-day); background: rgba(5, 150, 105, 0.08); }
+        .btn-export { border-color: rgba(37, 99, 235, 0.3); color: #2563eb; background: rgba(37, 99, 235, 0.08); }
+        [data-theme="dark"] .btn-export { color: #93c5fd; }
         .btn-theme { border-color: var(--input-border); color: var(--text-heading); background: var(--card-bg); font-size: 1rem; padding: 0.45rem 0.7rem; line-height: 1; }
 
         /* КАЛЕНДАР */
@@ -139,6 +143,7 @@
             background: var(--chip-bg);
         }
         .weekday-label.is-critical { color: #dc2626; background: rgba(239, 68, 68, 0.06); }
+        [data-theme="dark"] .weekday-label.is-critical { color: #fca5a5; }
         .weekday-label.is-good { color: var(--good-day); background: rgba(5, 150, 105, 0.08); }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
 
@@ -168,16 +173,17 @@
         .calendar-day.good-day .day-number { color: var(--good-day); }
         .calendar-day.good-day .day-weekday { color: #6ee7b7; }
         .driver-badge { font-size: 0.55rem; font-weight: 800; color: #0369a1; background: rgba(3,105,161,0.1); border: 1px solid rgba(3,105,161,0.2); border-radius: 5px; padding: 1px 4px; }
+        [data-theme="dark"] .driver-badge { color: #7dd3fc; background: rgba(56,189,248,0.12); border-color: rgba(56,189,248,0.3); }
 
         .duty-chip {
-            font-size: 0.58rem;
+            font-size: 0.54rem;
             font-weight: 800;
             color: #fff;
             padding: 2px 7px;
             border-radius: 20px;
             letter-spacing: 0.01em;
             white-space: nowrap;
-            max-width: 108px;
+            max-width: 175px;
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -198,7 +204,7 @@
             justify-content: space-between;
             padding: 2px 5px;
             border-radius: 5px;
-            font-size: 0.66rem;
+            font-size: 0.62rem;
             font-weight: 600;
             border-left: 3px solid transparent;
             gap: 4px;
@@ -223,7 +229,13 @@
             padding: 1.25rem 1.4rem;
             box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.05);
         }
-        .stats-panel h2 { font-family: 'Manrope', sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--text-heading); margin-bottom: 0.9rem; }
+        .stats-panel h2 { font-family: 'Manrope', sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--text-heading); margin-bottom: 0.7rem; }
+
+        .stats-scope-toggle { display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
+        .scope-btn { padding: 0.32rem 0.75rem; font-size: 0.72rem; }
+        .scope-btn.active { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); }
+        .stats-scope-label { font-size: 0.66rem; color: var(--text-muted); font-weight: 700; margin-left: auto; }
+
         .stats-subheading { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--accent-primary); margin: 1rem 0 0.5rem 0; border-bottom: 1px dashed var(--border-color); padding-bottom: 4px; letter-spacing: 0.02em; }
         .stats-list { display: flex; flex-direction: column; gap: 0.4rem; }
 
@@ -262,6 +274,12 @@
         .badge-work { background: rgba(16, 185, 129, 0.06); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.15); }
         .badge-other { background: rgba(100, 116, 139, 0.06); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.15); }
         .badge-sum { background: #0f172a; color: #fff; border: 1px solid #0f172a; }
+        [data-theme="dark"] .badge-total { color: #a5b4fc; }
+        [data-theme="dark"] .badge-thu { color: #6ee7b7; }
+        [data-theme="dark"] .badge-fri { color: #93c5fd; }
+        [data-theme="dark"] .badge-weekend { color: #fca5a5; }
+        [data-theme="dark"] .badge-work { color: #6ee7b7; }
+        [data-theme="dark"] .badge-other { color: #cbd5e1; }
 
         .stat-bar-track { height: 5px; border-radius: 3px; background: var(--divider); overflow: hidden; }
         .stat-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
@@ -332,7 +350,7 @@
 <div class="container">
     <header>
         <div class="logo-area">
-            <h1>DutyControl <span>Pro v9</span></h1>
+            <h1>DutyControl <span>Pro v10</span></h1>
         </div>
         <div class="month-selector">
             <button class="btn" onclick="changeMonth(-1)">◀️</button>
@@ -344,6 +362,7 @@
             <button class="btn btn-notify" onclick="copyDutyMessage(0)">🔔 Наряд сьогодні</button>
             <button class="btn btn-notify" onclick="copyDutyMessage(1)">🔔 Наряд завтра</button>
             <button class="btn btn-auto" onclick="autoFillNextMonth()">🤖 Заповнити наступний місяць</button>
+            <button class="btn btn-export" onclick="exportToWord()">📄 Word-графік</button>
             <button class="btn btn-save" onclick="saveToCloudAndLocal()">Зберегти зміни</button>
         </div>
     </header>
@@ -364,6 +383,14 @@
     <aside class="sidebar">
         <div class="stats-panel">
             <h2>Аналітика нарядів та статусів</h2>
+
+            <div class="stats-scope-toggle" id="statsScopeToggle">
+                <button class="btn scope-btn" data-scope="month" onclick="setStatsScope('month')">Місяць</button>
+                <button class="btn scope-btn" data-scope="year" onclick="setStatsScope('year')">Рік</button>
+                <button class="btn scope-btn" data-scope="all" onclick="setStatsScope('all')">Весь час</button>
+                <span class="stats-scope-label" id="statsScopeLabel"></span>
+            </div>
+
             <div class="stats-legend-header">
                 <span>Працівник</span>
                 <span>Черг.</span>
@@ -383,7 +410,7 @@
             <div class="stats-list" id="statsListManagement"></div>
 
             <div class="legend-note">
-                Колір біля кожного імені у списку — це «підпис» працівника: у календарі кожен запис пофарбований у той самий колір, тому легко відстежити, хто і де стоїть, навіть не читаючи прізвище. Смужка під цифрами показує навантаження відносно найзавантаженішого працівника групи — але тепер відносно <b>стажу</b>: під кожною карткою можна вказати місяць початку роботи, і сортування/смужка рахуються як «нарядів на місяць стажу», а не сирий підсумок за весь час. Так новачок із 3 нарядами за 2 місяці й ветеран із 15 за рік показуються як однаково завантажені.
+                Колір біля кожного імені у списку — це «підпис» працівника: у календарі кожен запис пофарбований у той самий колір, тому легко відстежити, хто і де стоїть, навіть не читаючи прізвище. Смужка під цифрами у режимі «Весь час» показує навантаження відносно найзавантаженішого працівника групи, порахованого «нарядів на місяць стажу» — так новачок із 3 нарядами за 2 місяці й ветеран із 15 за рік показуються як однаково завантажені. У режимах «Місяць» і «Рік» смужка показує просто фактичну кількість нарядів за обраний період.
                 <br><br>
                 Четвер, субота і неділя рахуються окремими колонками — саме ці дні найчутливіші до справедливого розподілу (четвер дає три вихідні поспіль, субота — найменш бажаний день). «Інше» (відпустки, відрядження, лікарняні) у загальний підсумок «Всього» не входить.
                 <br><br>
@@ -391,7 +418,9 @@
                 <br><br>
                 Кулик Д.І. на підхваті, тому кнопка «Заповнити наступний місяць» його ніколи не призначає автоматично — тільки якщо додати вручну через випадаючий список у клітинці конкретного дня.
                 <br><br>
-                Автозаповнення тепер розрізняє чотири "особливі" категорії дня — четвер, пʼятниця, і субота+неділя разом (як вихідний). Кожна людина отримує максимум по одному разу в кожній категорії за місяць — тому той самий чоловік більше не отримає два четверги чи дві пʼятниці за один місяць. Додатково: між будь-якими двома нарядами — щонайменше 6 днів, і не більше 3 нарядів на місяць сумарно. Якщо через ці правила вільних кандидатів на день не лишається, вони послаблюються по черзі — від найменш важливого до найважливішого — щоб жоден день не лишився зовсім без чергового.
+                Мотузенко М.С., Магера А.В. і Магера В.В. не керують автівкою — тому автозаповнення більше не ставить двох людей із цієї трійки чергувати одразу один за одним (підряд), навіть якщо формально минуло достатньо днів між їхніми власними чергуваннями.
+                <br><br>
+                Автозаповнення розрізняє чотири "особливі" категорії дня — четвер, пʼятниця, і субота+неділя разом (як вихідний). Кожна людина отримує максимум по одному разу в кожній категорії за місяць. Додатково: між будь-якими двома нарядами — щонайменше 6 днів, і не більше 3 нарядів на місяць сумарно. Якщо через ці правила вільних кандидатів на день не лишається, вони послаблюються по черзі — від найменш важливого до найважливішого — щоб жоден день не лишився зовсім без чергового.
             </div>
         </div>
     </aside>
@@ -399,8 +428,6 @@
 
 <script>
     // ---------- ТЕМА (світла/темна) ----------
-    // Застосовується одразу при завантаженні скрипта (до initCalendar),
-    // щоб уникнути "спалаху" світлої теми при відкритті сторінки вночі.
     function applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         const btn = document.getElementById('themeToggleBtn');
@@ -411,7 +438,7 @@
         const next = current === 'dark' ? 'light' : 'dark';
         localStorage.setItem('duty_theme_v1', next);
         applyTheme(next);
-        initCalendar(); // перемальовуємо, бо частина кольорів рахується інлайново в JS
+        initCalendar(); // перемальовуємо, бо кольори рахуються інлайново в JS і залежать від теми
     }
     (function initTheme() {
         const saved = localStorage.getItem('duty_theme_v1');
@@ -431,42 +458,53 @@
         "Приймак А.І.", "Шахляров Т.Е.", "Хворостян В.В."
     ];
     // Кулик Д.І. — "на підхваті": в автоматичний розподіл (autoFillNextMonth)
-    // не потрапляє взагалі (ні як новачок, ні як усі інші), його можна
-    // призначити тільки вручну через випадаючий список у клітинці дня.
+    // не потрапляє взагалі, його можна призначити тільки вручну.
     const AUTOFILL_EXCLUDED = ["Кулик Д.І."];
-    // ФІКС "раз на тиждень": між двома чергуваннями однієї людини має пройти
-    // щонайменше стільки днів, і за місяць людина не отримує більше стількох
-    // чергувань — навіть якщо за навантаженням/стажем вона "найменш зайнята".
+    // ФІКС 3: ці троє не керують автівкою, тому не повинні заступати
+    // один за одним підряд (два дні поспіль різні люди з цієї групи) —
+    // навіть якщо формально пройшло достатньо днів між ЇХНІМИ ВЛАСНИМИ
+    // чергуваннями. Правило працює лише на "стику" днів: якщо вчора
+    // чергував хтось із цієї трійки, сьогодні інший з трійки не підходить.
+    const LINKED_NO_DRIVER_GROUP = ["Мотузенко М.С.", "Магера А.В.", "Магера В.В."];
     const AUTOFILL_MIN_GAP_DAYS = 6;
     const AUTOFILL_MAX_PER_MONTH = 3;
-    // Окреме, суворіше правило: субота й неділя — це втрата вихідного,
-    // тому одна людина за місяць може чергувати у вихідний максимум стільки
-    // разів (Сб + Нд разом).
     const AUTOFILL_MAX_WEEKEND_PER_MONTH = 1;
-    // Так само окремо для четверга і пʼятниці — щоб та сама людина не
-    // отримувала "свій" день тижня двічі за місяць (саме це й ламало
-    // розподіл раніше: четвер/пʼятниця не мали власного ліміту).
     const AUTOFILL_MAX_THU_PER_MONTH = 1;
     const AUTOFILL_MAX_FRI_PER_MONTH = 1;
-    // Єдиний список — саме за індексом у ньому кожному працівнику присвоюється
-    // сталий колір (golden-angle розподіл відтінків, тому кольори завжди
-    // виглядають різними й приглушеними, скільки б людей не було).
     const allEmployees = [...staff, ...management];
 
+    // ФІКС 4: деякі прізвища містять апостроф (наприклад "Дем'яненко").
+    // Якщо вставити таке ім'я як є всередину одинарних лапок в inline
+    // onclick/onchange (наприклад onchange="toggleDriver('${emp}',...)"),
+    // апостроф обриває рядок JS і обробник просто мовчки ламається —
+    // саме тому раніше не працював фільтр "водій" для Дем'яненко.
+    // Ця функція екранує апостроф і зворотний слеш перед підстановкою
+    // імені в такі рядки.
+    function escJs(str) {
+        return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
+    function currentTheme() {
+        return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    // ФІКС 1: раніше фон плашки працівника завжди був дуже світлим
+    // (hsl(..,60%,95%)) незалежно від теми, а колір тексту дати брався
+    // з --text-secondary, який у темній темі світлий — світлий текст на
+    // світлому фоні ставав нечитабельним. Тепер колір явно залежить від
+    // поточної теми: в темній темі фон і рамка темніші, текст світліший.
     function employeeColor(name) {
         const idx = allEmployees.indexOf(name);
         const hue = Math.round(((idx >= 0 ? idx : 0) * 137.508) % 360);
+        const dark = currentTheme() === 'dark';
         return {
-            text: `hsl(${hue}, 42%, 30%)`,
-            bg: `hsl(${hue}, 60%, 95%)`,
-            border: `hsl(${hue}, 45%, 55%)`
+            text: dark ? `hsl(${hue}, 55%, 80%)` : `hsl(${hue}, 42%, 30%)`,
+            bg: dark ? `hsl(${hue}, 32%, 20%)` : `hsl(${hue}, 60%, 95%)`,
+            border: dark ? `hsl(${hue}, 55%, 58%)` : `hsl(${hue}, 45%, 55%)`
         };
     }
 
-    // ---------- ФІКС 1: стаж співробітника ----------
-    // Місяць початку роботи (формат "YYYY-MM") — редагується прямо в картці
-    // аналітики. Якщо не вказано — тимчасово рахуємо від початку поточного
-    // року, поки хтось не виправить дату вручну.
+    // ---------- Стаж співробітника ----------
     let employeeStart = JSON.parse(localStorage.getItem('duty_emp_start_v1')) || {};
     allEmployees.forEach(emp => {
         if (!employeeStart[emp]) {
@@ -485,7 +523,6 @@
         calculateStats();
     }
 
-    // Скільки місяців людина вже працює (мінімум 1, щоб не ділити на нуль).
     function monthsOfService(emp) {
         const raw = employeeStart[emp];
         if (!raw) return 1;
@@ -495,7 +532,7 @@
         return Math.max(1, months);
     }
 
-    // ---------- ФІКС 2: водії ----------
+    // ---------- Водії ----------
     let driverFlags = JSON.parse(localStorage.getItem('duty_drivers_v1')) || {};
     function isDriver(emp) { return !!driverFlags[emp]; }
     function toggleDriver(emp, checked) {
@@ -505,7 +542,6 @@
     }
 
     let currentDate = new Date();
-    // Структура даних: { "YYYY-MM-DD": { duties: [], mgmt: [], absences: [] } }
     let schedule = JSON.parse(localStorage.getItem('duty_v8')) ||
                    JSON.parse(localStorage.getItem('duty_v7')) ||
                    JSON.parse(localStorage.getItem('duty_v6')) ||
@@ -525,11 +561,13 @@
         return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
     }
 
+    // ФІКС 2: показуємо повне прізвище+ініціали (а не тільки прізвище),
+    // бо є декілька людей з однаковим прізвищем (Магера А.В. / Магера В.В.).
     function renderRow(item, label, dateStr, listType, idx) {
         const c = employeeColor(item.emp);
         const drv = isDriver(item.emp) ? ' <span class="driver-badge">🚗</span>' : '';
-        return `<div class="item-row" style="background:${c.bg}; border-left-color:${c.border}; color:${c.text};">
-                    <span><b>${label}</b> ${item.emp.split(' ')[0]}${drv}</span>
+        return `<div class="item-row" style="background:${c.bg}; border-left-color:${c.border}; color:${c.text};" title="${item.emp}">
+                    <span><b>${label}</b> ${item.emp}${drv}</span>
                     <button class="btn-del" onclick="removeItem('${dateStr}','${listType}',${idx})">×</button>
                 </div>`;
     }
@@ -558,10 +596,7 @@
             const dayOfWeek = dateObj.getDay();
 
             dayCell.className = 'calendar-day';
-            // Критичні (найменш бажані) дні — лише субота і неділя.
             const isCritDay = [6, 0].includes(dayOfWeek);
-            // Четвер тепер окремо виділяється як "хороший" день чергування
-            // (після нього три вихідних поспіль).
             const isGoodDay = dayOfWeek === 4;
             if (isCritDay) dayCell.classList.add('critical-day');
             if (isGoodDay) dayCell.classList.add('good-day');
@@ -569,19 +604,18 @@
 
             const dayData = schedule[dateStr] || { duties: [], mgmt: [], absences: [] };
 
-            // Хто сьогодні на добовому чергуванні (тип 'duty' в основному складі) —
-            // саме його кольором "засвічуємо" всю клітинку дня.
             const onDuty = (dayData.duties || []).filter(d => d.type === 'duty');
             let cellStyle = '';
             let dutyChipHtml = '';
             if (onDuty.length === 1) {
                 const c = employeeColor(onDuty[0].emp);
                 cellStyle = `border-top-color:${c.border}; background: linear-gradient(180deg, ${c.bg} 0%, var(--card-bg) 62%);`;
-                dutyChipHtml = `<span class="duty-chip" style="background:${c.border};">${onDuty[0].emp.split(' ')[0]}</span>`;
+                dutyChipHtml = `<span class="duty-chip" style="background:${c.border};" title="${onDuty[0].emp}">${onDuty[0].emp}</span>`;
             } else if (onDuty.length > 1) {
                 const bgTints = onDuty.map(d => employeeColor(d.emp).bg);
+                const namesJoined = onDuty.map(d => d.emp).join(' / ');
                 cellStyle = `border-top-color:#334155; background: linear-gradient(135deg, ${bgTints.join(', ')});`;
-                dutyChipHtml = `<span class="duty-chip" style="background:#334155;">${onDuty.length} чергових</span>`;
+                dutyChipHtml = `<span class="duty-chip" style="background:#334155;" title="${namesJoined}">${namesJoined}</span>`;
             } else if (isCritDay) {
                 cellStyle = `background:var(--weekend-tint);`;
             } else if (isGoodDay) {
@@ -672,7 +706,7 @@
         if (empName === 'X' || empName === 'V') return;
 
         if (!schedule[dateStr]) schedule[dateStr] = { duties: [], mgmt: [], absences: [] };
-        if (!schedule[dateStr].mgmt) schedule[dateStr].mgmt = []; // Захист структури старих збережень
+        if (!schedule[dateStr].mgmt) schedule[dateStr].mgmt = [];
 
         const exists = schedule[dateStr][listType].some(item => item.emp === empName);
         if (exists) { alert("Цей працівник вже доданий у цю секцію на цей день!"); initCalendar(); return; }
@@ -693,15 +727,17 @@
         }
     }
 
-    // Рахує "сирі" накопичені показники по кожному працівнику за всю історію
-    // schedule. Використовується і для відображення аналітики, і для
-    // алгоритму автозаповнення наступного місяця (щоб він бачив реальне
-    // навантаження, а не тільки поточний місяць).
-    function computeStats() {
+    // ФІКС 5: computeStats тепер приймає необов'язковий filterFn(dateStr),
+    // щоб рахувати статистику не тільки за весь час, а й за обраний
+    // місяць/рік. Без filterFn (як у автозаповненні) поведінка та сама,
+    // що й раніше — рахує за всю історію schedule.
+    function computeStats(filterFn) {
         const stats = {};
         allEmployees.forEach(emp => { stats[emp] = { duty: 0, thu: 0, fri: 0, sat: 0, sun: 0, work: 0, other: 0 }; });
 
         Object.keys(schedule).forEach(dateStr => {
+            if (typeof filterFn === 'function' && !filterFn(dateStr)) return;
+
             const dayData = schedule[dateStr];
             const [y, m, d] = dateStr.split('-').map(Number);
             const dow = new Date(y, m - 1, d).getDay();
@@ -740,21 +776,54 @@
         return stats;
     }
 
+    // ФІКС 5: перемикач "Місяць / Рік / Весь час" для аналітики.
+    let statsScope = 'all';
+
+    function setStatsScope(scope) {
+        statsScope = scope;
+        calculateStats();
+    }
+
+    function statsFilterForScope() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        if (statsScope === 'month') {
+            return (dateStr) => {
+                const [y, m] = dateStr.split('-').map(Number);
+                return y === year && (m - 1) === month;
+            };
+        } else if (statsScope === 'year') {
+            return (dateStr) => dateStr.startsWith(String(year) + '-');
+        }
+        return null; // 'all' — без фільтра, вся історія
+    }
+
+    function updateScopeUI() {
+        document.querySelectorAll('.scope-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.scope === statsScope);
+        });
+        const label = document.getElementById('statsScopeLabel');
+        if (!label) return;
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        if (statsScope === 'month') label.textContent = `за ${monthsUA[month]} ${year}`;
+        else if (statsScope === 'year') label.textContent = `за ${year} рік`;
+        else label.textContent = 'за весь час';
+    }
+
     function calculateStats() {
-        const stats = computeStats();
+        updateScopeUI();
+        const filterFn = statsFilterForScope();
+        const stats = computeStats(filterFn);
+        const useRate = statsScope === 'all';
 
         function renderGroup(group) {
-            // ФІКС 1: "Всього" рахує чергування + відпрацювання, але
-            // сортування і смужка навантаження тепер базуються на
-            // "нарядів на місяць стажу" (rate), а не на сирій сумі —
-            // так новачки й ветерани порівнюються справедливо.
             const rate = {};
             group.forEach(emp => {
                 const total = stats[emp].duty + stats[emp].work;
-                rate[emp] = total / monthsOfService(emp);
+                rate[emp] = useRate ? (total / monthsOfService(emp)) : total;
             });
             const maxRate = Math.max(0.01, ...group.map(emp => rate[emp]));
-
             const ordered = [...group].sort((a, b) => rate[b] - rate[a]);
 
             return ordered.map(emp => {
@@ -762,6 +831,9 @@
                 const total = s.duty + s.work;
                 const c = employeeColor(emp);
                 const pct = Math.round((rate[emp] / maxRate) * 100);
+                const rateHtml = useRate
+                    ? `<span class="meta-rate" title="Нарядів на місяць стажу — саме за цим числом вирівнюється навантаження">≈ ${rate[emp].toFixed(2)}/міс</span>`
+                    : `<span class="meta-rate">${total} за обраний період</span>`;
                 return `
                 <div class="stat-card">
                     <div class="stat-top">
@@ -778,9 +850,9 @@
                     <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${pct}%; background:${c.border};"></div></div>
                     <div class="stat-meta">
                         <span class="meta-label">Стаж з</span>
-                        <input type="month" class="meta-input" value="${employeeStart[emp] || ''}" onchange="setEmployeeStart('${emp}', this.value)">
-                        <span class="meta-rate" title="Нарядів на місяць стажу — саме за цим числом вирівнюється навантаження">≈ ${rate[emp].toFixed(2)}/міс</span>
-                        <label class="meta-driver"><input type="checkbox" ${isDriver(emp) ? 'checked' : ''} onchange="toggleDriver('${emp}', this.checked)"> 🚗 водій</label>
+                        <input type="month" class="meta-input" value="${employeeStart[emp] || ''}" onchange="setEmployeeStart('${escJs(emp)}', this.value)">
+                        ${rateHtml}
+                        <label class="meta-driver"><input type="checkbox" ${isDriver(emp) ? 'checked' : ''} onchange="toggleDriver('${escJs(emp)}', this.checked)"> 🚗 водій</label>
                     </div>
                 </div>`;
             }).join('');
@@ -794,8 +866,6 @@
         initCalendar();
     }
 
-    // Перевіряє, чи працівник вже зайнятий/відсутній цього дня в будь-якій
-    // із трьох секцій (наряд, керівництво, відпустка/відрядження/лікарняний).
     function isEmployeeUnavailable(dateStr, empName) {
         const dayData = schedule[dateStr];
         if (!dayData) return false;
@@ -807,22 +877,20 @@
     // Автоматичний розподіл добових чергувань (X) основного складу на
     // наступний місяць. Логіка враховує (у порядку пріоритету):
     //  1. хто вже відсутній/зайнятий цього дня — виключається одразу;
-    //  2. пʼятниця/субота — спершу тільки водії 🚗 (fallback на всіх, якщо
+    //  2. ФІКС 3: якщо вчора чергував хтось із трійки "не водіїв"
+    //     (Мотузенко М.С. / Магера А.В. / Магера В.В.), сьогодні інший
+    //     з цієї ж трійки не підходить — вони не заступають один за
+    //     одним підряд;
+    //  3. пʼятниця/субота — спершу тільки водії 🚗 (fallback на всіх, якщо
     //     жоден водій не вільний);
-    //  3. четвер, пʼятниця і субота+неділя — це ОКРЕМІ "категорії" дня.
+    //  4. четвер, пʼятниця і субота+неділя — окремі "категорії" дня.
     //     Кожна людина отримує максимум 1 четвер, 1 пʼятницю і 1 вихідний
-    //     (Сб або Нд) за місяць. Це найважливіше правило — саме його
-    //     бракувало раніше, тому одна й та сама людина могла отримати
-    //     четвер або пʼятницю двічі за місяць;
-    //  4. загальний ліміт — не частіше ніж раз на AUTOFILL_MIN_GAP_DAYS днів
-    //     і не більше AUTOFILL_MAX_PER_MONTH нарядів на місяць сумарно
-    //     (працює як третій, страхувальний шар — на звичайні будні);
-    //  5. серед тих, хто пройшов усі фільтри — обирається людина з
-    //     найменшим навантаженням на місяць стажу для ЦІЄЇ категорії дня
-    //     (рахунок — за всю історію, не тільки поточний місяць), щоб
-    //     новачки й ветерани порівнювались справедливо.
-    // Якщо на якомусь кроці пул кандидатів спорожнів — крок послаблюється
-    // (спочатку 4, потім 3, і лише в останню чергу — зовсім без обмежень),
+    //     (Сб або Нд) за місяць;
+    //  5. загальний ліміт — не частіше ніж раз на AUTOFILL_MIN_GAP_DAYS днів
+    //     і не більше AUTOFILL_MAX_PER_MONTH нарядів на місяць сумарно;
+    //  6. серед тих, хто пройшов усі фільтри — обирається людина з
+    //     найменшим навантаженням на місяць стажу для ЦІЄЇ категорії дня.
+    // Якщо на якомусь кроці пул кандидатів спорожнів — крок послаблюється,
     // щоб жоден день не лишився без чергового.
     function autoFillNextMonth() {
         const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
@@ -833,7 +901,7 @@
 
         const proceed = confirm(
             `Автоматично розподілити добові чергування (X) основного складу на ${monthLabel}?\n\n` +
-            `Кожна людина отримає максимум 1 четвер, 1 пʼятницю і 1 вихідний (Сб/Нд) за місяць, максимум ${AUTOFILL_MAX_PER_MONTH} нарядів загалом, і не частіше ніж раз на ${AUTOFILL_MIN_GAP_DAYS} днів. Навантаження рахується з урахуванням стажу (нарядів/місяць), а не сирої кількості. У пʼятницю й суботу пріоритет — водіям 🚗. Кулик Д.І. в автоматичний розподіл не потрапляє (на підхваті) — тільки вручну. ` +
+            `Кожна людина отримає максимум 1 четвер, 1 пʼятницю і 1 вихідний (Сб/Нд) за місяць, максимум ${AUTOFILL_MAX_PER_MONTH} нарядів загалом, і не частіше ніж раз на ${AUTOFILL_MIN_GAP_DAYS} днів. Навантаження рахується з урахуванням стажу (нарядів/місяць), а не сирої кількості. У пʼятницю й суботу пріоритет — водіям 🚗. Мотузенко М.С., Магера А.В. і Магера В.В. (не водії) не будуть заступати один за одним підряд. Кулик Д.І. в автоматичний розподіл не потрапляє (на підхваті) — тільки вручну. ` +
             `Уже проставлені наряди на цей місяць не будуть змінені, відпустки/відрядження/лікарняні — враховані.`
         );
         if (!proceed) return;
@@ -890,10 +958,23 @@
             if (!schedule[dateStr].absences) schedule[dateStr].absences = [];
 
             const alreadyHasDuty = schedule[dateStr].duties.some(d => d.type === 'duty');
-            if (alreadyHasDuty) continue;
+            if (alreadyHasDuty) {
+                // День уже заповнений вручну — все одно фіксуємо, хто чергував,
+                // щоб правило "не підряд з трійки не-водіїв" бачило й ручні записи.
+                const manual = schedule[dateStr].duties.find(d => d.type === 'duty');
+                if (manual) prevEmp = manual.emp;
+                continue;
+            }
 
             const basePool = staff.filter(emp => !isEmployeeUnavailable(dateStr, emp) && !AUTOFILL_EXCLUDED.includes(emp));
             let pool = basePool.filter(emp => emp !== prevEmp);
+
+            // ФІКС 3: якщо вчора чергував хтось із "не водіїв", сьогодні
+            // інший з цієї ж трійки не підходить.
+            if (LINKED_NO_DRIVER_GROUP.includes(prevEmp)) {
+                const noGroupPool = pool.filter(emp => !LINKED_NO_DRIVER_GROUP.includes(emp));
+                if (noGroupPool.length > 0) pool = noGroupPool;
+            }
             if (pool.length === 0) pool = basePool;
 
             if (dow === 5 || dow === 6) {
@@ -1050,6 +1131,122 @@
             .finally(() => {
                 initCalendar();
             });
+    }
+
+    // ФІКС 6: експорт поточного місяця у Word (.docx) — таблиця у стилі
+    // паперового графіка, з блоком "ЗАТВЕРДЖУЮ" і підписом начальника,
+    // та списком "Ознайомлений" внизу.
+    async function exportToWord() {
+        if (typeof docx === 'undefined') {
+            alert('Бібліотека для генерації Word ще завантажується (потрібне інтернет-зʼєднання для першого разу). Зачекайте секунду і спробуйте ще раз.');
+            return;
+        }
+
+        const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+                WidthType, AlignmentType, HeadingLevel } = docx;
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const totalDays = new Date(year, month + 1, 0).getDate();
+        const monthLabel = monthsUA[month];
+        const pad2 = n => String(n).padStart(2, '0');
+        const firstDateFmt = `01.${pad2(month + 1)}.${year}`;
+        const lastDateFmt = `${pad2(totalDays)}.${pad2(month + 1)}.${year}`;
+
+        function dutyMarkFor(name, day) {
+            const dateStr = getDateString(year, month, day);
+            const dayData = schedule[dateStr];
+            if (!dayData) return '';
+            if ((dayData.duties || []).some(d => d.emp === name && d.type === 'duty')) return 'Х';
+            if ((dayData.mgmt || []).some(d => d.emp === name && d.type === 'duty')) return 'Х';
+            return '';
+        }
+
+        function headerRow() {
+            const cells = [ new TableCell({
+                width: { size: 1700, type: WidthType.DXA },
+                children: [ new Paragraph({ alignment: AlignmentType.CENTER, children: [ new TextRun({ text: 'П.І.Б./Дата', bold: true }) ] }) ]
+            }) ];
+            for (let d = 1; d <= totalDays; d++) {
+                cells.push(new TableCell({
+                    width: { size: 320, type: WidthType.DXA },
+                    children: [ new Paragraph({ alignment: AlignmentType.CENTER, children: [ new TextRun({ text: String(d), bold: true }) ] }) ]
+                }));
+            }
+            return new TableRow({ children: cells, tableHeader: true });
+        }
+
+        function personRow(name) {
+            const cells = [ new TableCell({ children: [ new Paragraph({ text: name }) ] }) ];
+            for (let d = 1; d <= totalDays; d++) {
+                const mark = dutyMarkFor(name, d);
+                const dow = new Date(year, month, d).getDay();
+                const isWeekend = dow === 0 || dow === 6;
+                cells.push(new TableCell({
+                    shading: mark ? { fill: 'FFF176' } : (isWeekend ? { fill: 'F2F2F2' } : undefined),
+                    children: [ new Paragraph({ alignment: AlignmentType.CENTER, text: mark }) ]
+                }));
+            }
+            return new TableRow({ children: cells });
+        }
+
+        function sectionRow(title) {
+            return new TableRow({ children: [ new TableCell({
+                columnSpan: totalDays + 1,
+                shading: { fill: 'E5E7EB' },
+                children: [ new Paragraph({ alignment: AlignmentType.CENTER, children: [ new TextRun({ text: title, bold: true }) ] }) ]
+            }) ] });
+        }
+
+        const rows = [ headerRow() ];
+        staff.forEach(n => rows.push(personRow(n)));
+        rows.push(sectionRow('ВІДПОВІДАЛЬНІ ВІД КЕРІВНИЦТВА УГІ ГУНП'));
+        management.forEach(n => rows.push(personRow(n)));
+
+        const table = new Table({ rows, width: { size: 100, type: WidthType.PERCENTAGE } });
+
+        const approvalParas = [
+            new Paragraph({ alignment: AlignmentType.RIGHT, children: [ new TextRun({ text: 'ЗАТВЕРДЖУЮ', bold: true }) ] }),
+            new Paragraph({ alignment: AlignmentType.RIGHT, text: 'Начальник УГІ ГУНП' }),
+            new Paragraph({ alignment: AlignmentType.RIGHT, text: 'в Черкаській області' }),
+            new Paragraph({ alignment: AlignmentType.RIGHT, text: 'майор поліції' }),
+            new Paragraph({ alignment: AlignmentType.RIGHT, text: '' }),
+            new Paragraph({ alignment: AlignmentType.RIGHT, text: '________________  Роман АРГАТ' }),
+            new Paragraph({ alignment: AlignmentType.RIGHT, text: `"____" ${monthLabel.toLowerCase()} ${year} року` }),
+            new Paragraph({ text: '' }),
+            new Paragraph({ alignment: AlignmentType.CENTER, heading: HeadingLevel.HEADING_1, children: [ new TextRun({ text: 'ГРАФІК', bold: true }) ] }),
+            new Paragraph({ alignment: AlignmentType.CENTER, text: 'чергувань співробітників УГІ ГУНП в Черкаській області' }),
+            new Paragraph({ alignment: AlignmentType.CENTER, text: `в період з ${firstDateFmt} по ${lastDateFmt}` }),
+            new Paragraph({ text: '' }),
+        ];
+
+        const acknowledgeParas = [
+            new Paragraph({ text: '' }),
+            new Paragraph({ children: [ new TextRun({ text: 'Ознайомлений:', bold: true }) ] }),
+            ...staff.map(n => new Paragraph({ text: `( ________________ )  ${n}` })),
+        ];
+
+        const doc = new Document({
+            sections: [{
+                properties: {
+                    page: {
+                        size: { orientation: docx.PageOrientation.LANDSCAPE },
+                        margin: { top: 720, bottom: 720, left: 600, right: 600 }
+                    }
+                },
+                children: [ ...approvalParas, table, ...acknowledgeParas ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Grafik_${monthLabel}_${year}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
     }
 
     loadFromCloud();
