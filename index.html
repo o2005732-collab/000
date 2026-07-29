@@ -902,6 +902,18 @@
         const totalDays = new Date(year, month + 1, 0).getDate();
         const monthLabel = `${monthsUA[month]} ${year}`;
 
+        // ФІКС "завжди ті самі люди отримують 3-тю чергу": коли кілька
+        // кандидатів мають рівне навантаження (а це трапляється часто —
+        // саме тоді, коли роздається "зайва" 3-тя черга серед частини
+        // людей), сортування при нічиїй залишає початковий порядок
+        // масиву staff — а в ньому Цибко/Ївженко завжди стоять раніше за
+        // Мотузенко/Бондар. Тому місяць за місяцем перемагали ті самі.
+        // Рішення: стартову точку списку "обертаємо" залежно від
+        // конкретного місяця, що заповнюється — так нічиї різних місяців
+        // вирішуються на користь різних людей.
+        const rotationOffset = ((year * 12 + month) % staff.length + staff.length) % staff.length;
+        const rotatedStaff = staff.slice(rotationOffset).concat(staff.slice(0, rotationOffset));
+
         const proceed = confirm(
             `Автоматично розподілити добові чергування (X) основного складу на ${monthLabel}?\n\n` +
             `Кожна людина отримає максимум 1 четвер, 1 пʼятницю і 1 вихідний (Сб/Нд) за місяць, максимум ${AUTOFILL_MAX_PER_MONTH} нарядів загалом, і не частіше ніж раз на ${AUTOFILL_MIN_GAP_DAYS} днів. Навантаження рахується з урахуванням стажу (нарядів/місяць), а не сирої кількості. У пʼятницю й суботу пріоритет — водіям 🚗. Мотузенко М.С., Магера А.В. і Магера В.В. (не водії) не будуть заступати один за одним підряд. Кулик Д.І. в автоматичний розподіл не потрапляє (на підхваті) — тільки вручну. ` +
@@ -969,7 +981,7 @@
                 continue;
             }
 
-            const basePool = staff.filter(emp => !isEmployeeUnavailable(dateStr, emp) && !AUTOFILL_EXCLUDED.includes(emp));
+            const basePool = rotatedStaff.filter(emp => !isEmployeeUnavailable(dateStr, emp) && !AUTOFILL_EXCLUDED.includes(emp));
             let pool = basePool.filter(emp => emp !== prevEmp);
 
             // ФІКС 3: якщо вчора чергував хтось із "не водіїв", сьогодні
