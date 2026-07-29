@@ -888,8 +888,11 @@
     //     (Сб або Нд) за місяць;
     //  5. загальний ліміт — не частіше ніж раз на AUTOFILL_MIN_GAP_DAYS днів
     //     і не більше AUTOFILL_MAX_PER_MONTH нарядів на місяць сумарно;
-    //  6. серед тих, хто пройшов усі фільтри — обирається людина з
-    //     найменшим навантаженням на місяць стажу для ЦІЄЇ категорії дня.
+    //  6. серед тих, хто пройшов усі фільтри — обирається людина, у якої
+    //     НАЙМЕНШЕ нарядів САМЕ В ЦЬОМУ МІСЯЦІ (головний критерій, щоб
+    //     розподіл всередині місяця був рівним), а якщо кілька людей мають
+    //     однакову кількість — тай-брейк за навантаженням на місяць стажу
+    //     для цієї категорії дня (щоб різні місяці діставались різним людям).
     // Якщо на якомусь кроці пул кандидатів спорожнів — крок послаблюється,
     // щоб жоден день не лишився без чергового.
     function autoFillNextMonth() {
@@ -1006,16 +1009,27 @@
 
             if (pool.length === 0) { skippedNoOne++; continue; }
 
-            let sortKey;
-            if (dow === 4) sortKey = e => [load[e].thu / svc[e], load[e].total / svc[e]];
-            else if (dow === 5) sortKey = e => [load[e].fri / svc[e], load[e].total / svc[e]];
-            else if (dow === 6) sortKey = e => [load[e].sat / svc[e], load[e].total / svc[e]];
-            else if (dow === 0) sortKey = e => [load[e].sun / svc[e], load[e].total / svc[e]];
-            else sortKey = e => [load[e].total / svc[e], 0];
+            // ФІКС нерівномірності: головний критерій — хто МЕНШЕ чергував
+            // саме в поточному місяці (monthCount). Раніше сортування велось
+            // тільки за навантаженням "на місяць стажу" за весь час, тому
+            // людина з вигіднішим довгостроковим показником могла отримати
+            // кілька нарядів підряд за один місяць, поки черга не доходила
+            // до інших — саме так Магера А.В. в вересні отримала лише 1
+            // наряд, доки решта вже мали по 2-3. Категорія дня і загальний
+            // стаж лишаються тай-брейком — саме вони забезпечують, щоб різні
+            // місяці "чесно" діставались різним людям у довгостроковій
+            // перспективі.
+            let categoryRate;
+            if (dow === 4) categoryRate = e => load[e].thu / svc[e];
+            else if (dow === 5) categoryRate = e => load[e].fri / svc[e];
+            else if (dow === 6 || dow === 0) categoryRate = e => (load[e].sat + load[e].sun) / svc[e];
+            else categoryRate = e => load[e].total / svc[e];
 
             pool.sort((a, b) => {
-                const ka = sortKey(a), kb = sortKey(b);
-                return (ka[0] - kb[0]) || (ka[1] - kb[1]);
+                if (monthCount[a] !== monthCount[b]) return monthCount[a] - monthCount[b];
+                const ca = categoryRate(a), cb = categoryRate(b);
+                if (ca !== cb) return ca - cb;
+                return (load[a].total / svc[a]) - (load[b].total / svc[b]);
             });
 
             const chosen = pool[0];
